@@ -212,4 +212,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
    * @returns {Promise<{ success: boolean, error?: string }>}
    */
   print: () => ipcRenderer.invoke('window:print'),
+
+  /**
+   * Generate PDF from current page content
+   * @returns {Promise<Uint8Array>} - PDF data as byte array
+   */
+  printToPdf: () => ipcRenderer.invoke('window:printToPdf'),
 });

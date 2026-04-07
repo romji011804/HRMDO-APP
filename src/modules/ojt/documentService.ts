@@ -170,6 +170,26 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
   const sheetW = 1600;
   const sheetH = Math.round(sheetW * 4400 / 3400); // 2071 - maintains template proportions
   const slotH = Math.floor(sheetH / 2);
+  
+  // Calculate viewBox to maximize size on A4 (210mm x 297mm aspect = 0.707)
+  // Crop horizontally to fit A4 aspect ratio without stretching
+  const a4Aspect = 210 / 297; // 0.707
+  const templateAspect = sheetW / sheetH; // ~0.772
+  
+  let viewBoxWidth = sheetW;
+  let viewBoxHeight = sheetH;
+  let viewBoxX = 0;
+  let viewBoxY = 0;
+  
+  if (templateAspect > a4Aspect) {
+    // Template is wider than A4, crop sides
+    viewBoxWidth = Math.round(sheetH * a4Aspect);
+    viewBoxX = Math.round((sheetW - viewBoxWidth) / 2);
+  } else {
+    // Template is taller than A4, crop top/bottom
+    viewBoxHeight = Math.round(sheetW / a4Aspect);
+    viewBoxY = Math.round((sheetH - viewBoxHeight) / 2);
+  }
 
   function slotOverlays(preview: ResolvedCertificatePreview, offsetY: number) {
     const completionLine = [preview.dateRangeLabel, preview.officeLine].filter(Boolean).join(" ");
@@ -204,24 +224,13 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
   const bottomOverlays = bottom ? slotOverlays(bottom, slotH) : "";
   const separator = bottom ? `<line x1="0" y1="${slotH}" x2="${sheetW}" y2="${slotH}" stroke="#e0e0e0" stroke-width="2" stroke-dasharray="10,5" />` : "";
 
-  // Crop marks (corner dots) - 4mm from edges, 2mm diameter
-  const cropMarkSize = 8; // 2mm at 96 DPI
-  const cropMarkOffset = 15; // 4mm from edge
-  const cropMarks = `
-    <circle cx="${cropMarkOffset}" cy="${cropMarkOffset}" r="${cropMarkSize / 2}" fill="#000" opacity="0.6" />
-    <circle cx="${sheetW - cropMarkOffset}" cy="${cropMarkOffset}" r="${cropMarkSize / 2}" fill="#000" opacity="0.6" />
-    <circle cx="${cropMarkOffset}" cy="${sheetH - cropMarkOffset}" r="${cropMarkSize / 2}" fill="#000" opacity="0.6" />
-    <circle cx="${sheetW - cropMarkOffset}" cy="${sheetH - cropMarkOffset}" r="${cropMarkSize / 2}" fill="#000" opacity="0.6" />
-  `;
-
   return `
-    <svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 ${sheetW} ${sheetH}" preserveAspectRatio="xMidYMid meet">
+    <svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}" preserveAspectRatio="xMidYMid meet">
       <image href="${top.templateSrc}" x="0" y="0" width="${sheetW}" height="${sheetH}" preserveAspectRatio="none" />
       <rect x="0" y="0" width="${sheetW}" height="${sheetH}" fill="rgba(255,255,255,0.10)" />
       ${topOverlays}
       ${separator}
       ${bottomOverlays}
-      ${cropMarks}
     </svg>
   `.trim();
 }
@@ -285,14 +294,109 @@ export function downloadCertificatePreview(preview: ResolvedCertificatePreview) 
   return fileName;
 }
 
-export function downloadCertificatePreviews(previews: ResolvedCertificatePreview[]) {
+async function generatePdfFromSvg(svg: string): Promise<Blob> {
+  // Create a temporary container to render the SVG
+  const container = document.createElement('div');
+  container.style.position = 'fixed';
+  container.style.left = '-9999px';
+  container.style.top = '0';
+  container.style.width = '210mm';
+  container.style.height = '297mm';
+  container.className = 'print-sheets';
+  
+  const img = document.createElement('img');
+  const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  img.src = url;
+  img.style.width = '100%';
+  img.style.height = '100%';
+  img.style.display = 'block';
+  
+  container.appendChild(img);
+  document.body.appendChild(container);
+  
+  // Wait for image to load
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  // Use Electron API to generate PDF
+  if (window.electronAPI?.printToPdf) {
+    const pdfData = await window.electronAPI.printToPdf();
+    document.body.removeChild(container);
+    URL.revokeObjectURL(url);
+    return new Blob([pdfData], { type: 'application/pdf' });
+  }
+  
+  // Cleanup
+  document.body.removeChild(container);
+  URL.revokeObjectURL(url);
+  
+  throw new Error('PDF generation is only available in Electron app');
+}
+
+export async function downloadCertificatePreviews(previews: ResolvedCertificatePreview[]) {
+  // Create a temporary container with all sheets for PDF generation
+  const printContainer = document.createElement('div');
+  printContainer.style.position = 'fixed';
+  printContainer.style.left = '-9999px';
+  printContainer.style.top = '0';
+  printContainer.className = 'print-sheets';
+  
+  const imageUrls: string[] = [];
+  
+  // Generate 2-up sheets
   for (let i = 0; i < previews.length; i += 2) {
     const top = previews[i];
     const bottom = previews[i + 1];
-    const fileName = bottom
-      ? `${sanitizeFileName(top.studentName)}_${sanitizeFileName(bottom.studentName)}_certificate.svg`
-      : `${sanitizeFileName(top.studentName)}_certificate.svg`;
-    triggerBrowserDownload(fileName, svgToBlob(buildSheetSvg(top, bottom)));
+    
+    const svg = buildSheetSvg(top, bottom);
+    const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    imageUrls.push(url);
+    
+    const img = document.createElement('img');
+    img.src = url;
+    img.className = 'print-sheet';
+    img.style.pageBreakAfter = i + 2 < previews.length ? 'always' : 'auto';
+    img.style.display = 'block';
+    img.style.width = '210mm';
+    img.style.height = '297mm';
+    
+    printContainer.appendChild(img);
+  }
+  
+  document.body.appendChild(printContainer);
+  
+  // Wait for images to load
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  try {
+    // Check if running in Electron
+    if (window.electronAPI?.printToPdf) {
+      const pdfData = await window.electronAPI.printToPdf();
+      
+      // Generate filename
+      const fileName = previews.length === 1
+        ? `${sanitizeFileName(previews[0].studentName)}_certificate.pdf`
+        : `certificates_${Date.now()}.pdf`;
+      
+      // Download the PDF
+      const pdfBlob = new Blob([pdfData], { type: 'application/pdf' });
+      triggerBrowserDownload(fileName, pdfBlob);
+    } else {
+      // Fallback: download as SVG if not in Electron
+      for (let i = 0; i < previews.length; i += 2) {
+        const top = previews[i];
+        const bottom = previews[i + 1];
+        const fileName = bottom
+          ? `${sanitizeFileName(top.studentName)}_${sanitizeFileName(bottom.studentName)}_certificate.svg`
+          : `${sanitizeFileName(top.studentName)}_certificate.svg`;
+        triggerBrowserDownload(fileName, svgToBlob(buildSheetSvg(top, bottom)));
+      }
+    }
+  } finally {
+    // Cleanup
+    document.body.removeChild(printContainer);
+    imageUrls.forEach(url => URL.revokeObjectURL(url));
   }
 }
 

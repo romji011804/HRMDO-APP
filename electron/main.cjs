@@ -282,30 +282,3 @@ ipcMain.handle('window:print', async (event) => {
     return { success: false, error: error.message };
   }
 });
-
-// Generate PDF from current page
-ipcMain.handle('window:printToPdf', async (event) => {
-  const window = BrowserWindow.fromWebContents(event.sender);
-  if (!window) throw new Error('No window found');
-  
-  try {
-    const pdfData = await window.webContents.printToPDF({
-      printBackground: true,
-      pageSize: 'A4',
-      margins: {
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0
-      },
-      landscape: false,
-      preferCSSPageSize: true
-    });
-    
-    // Return as Uint8Array for compatibility
-    return new Uint8Array(pdfData);
-  } catch (error) {
-    console.error('PDF generation error:', error);
-    throw error;
-  }
-});

@@ -1,0 +1,3 @@
+@echo off
+echo Starting MOA LO Tracker Desktop App...
+npm run electron:dev

@@ -174,25 +174,25 @@ function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: ResolvedCertifi
   function slotOverlays(preview: ResolvedCertificatePreview, offsetY: number) {
     const completionLine = [preview.dateRangeLabel, preview.officeLine].filter(Boolean).join(" ");
     const metrics = certificateLayoutMetrics(preview, completionLine);
-    const qrImage = preview.qrSrc ? `<image href="${preview.qrSrc}" x="92" y="${offsetY + 865}" width="110" height="110" preserveAspectRatio="xMidYMid meet" />` : "";
+    const qrImage = preview.qrSrc ? `<image href="${preview.qrSrc}" x="92" y="${offsetY + 769}" width="110" height="110" preserveAspectRatio="xMidYMid meet" />` : "";
     return `
-      <foreignObject x="${Math.round((sheetW - metrics.nameWidth) / 2)}" y="${offsetY + 470}" width="${metrics.nameWidth}" height="132">
+      <foreignObject x="${Math.round((sheetW - metrics.nameWidth) / 2)}" y="${offsetY + 395}" width="${metrics.nameWidth}" height="155">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:${certificateNameLineHeight(preview.studentName)};letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;word-break:break-word;">
             ${escapeHtml(preview.studentName)}
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((sheetW - metrics.schoolWidth) / 2)}" y="${offsetY + 620}" width="${metrics.schoolWidth}" height="76">
+      <foreignObject x="${Math.round((sheetW - metrics.schoolWidth) / 2)}" y="${offsetY + 510}" width="${metrics.schoolWidth}" height="76">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.schoolFontSize}px;font-style:italic;line-height:1.22;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             (${escapeHtml(preview.subtitle)})
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((sheetW - 1300) / 2)}" y="${offsetY + 730}" width="1300" height="120">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;line-height:1.3;text-align:center;color:rgba(17,17,17,0.92);">
-            <div style="font-weight:700;text-transform:uppercase;color:#111;">${escapeHtml(preview.hoursLabel)}</div>
-            <div style="font-weight:400;">${escapeHtml(completionLine)}</div>
+      <foreignObject x="${Math.round((sheetW - 1300) / 2)}" y="${offsetY + 600}" width="1300" height="120">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;line-height:1.15;text-align:center;color:rgba(17,17,17,0.92);">
+            <div style="font-weight:700;text-transform:uppercase;color:#111;margin:0;padding:0;line-height:1.15;">${escapeHtml(preview.hoursLabel)}</div>
+            <div style="font-weight:400;margin:0;padding:0;line-height:1.15;">${escapeHtml(completionLine)}</div>
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((sheetW - metrics.issuedWidth) / 2)}" y="${offsetY + 910}" width="${metrics.issuedWidth}" height="64">
+      <foreignObject x="${Math.round((sheetW - metrics.issuedWidth) / 2)}" y="${offsetY + 730}" width="${metrics.issuedWidth}" height="64">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.issuedFontSize}px;line-height:1.18;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             ${escapeHtml(preview.issuedLine)}
         </div>

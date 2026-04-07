@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import {
   buildCertificateSvg,
+  buildSheetSvg,
   createSavedCertificateRecord,
   downloadCertificatePreviews,
   resolveCertificatePreviews,
@@ -73,8 +74,50 @@ export function OjtCertificateViewer() {
     }).then(setPreviews);
   }, [state.selectedIds]);
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = async () => {
+    // For printing, we need to generate 2-up sheets (2 certificates per page)
+    // Create a temporary container with 2-up layout
+    const printContainer = document.createElement('div');
+    printContainer.style.display = 'none';
+    printContainer.className = 'print-sheets';
+    
+    // Generate 2-up sheets
+    for (let i = 0; i < previews.length; i += 2) {
+      const top = previews[i];
+      const bottom = previews[i + 1];
+      
+      // Build the 2-up sheet SVG
+      const svg = buildSheetSvg(top, bottom);
+      const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      
+      // Create an img element for the sheet
+      const img = document.createElement('img');
+      img.src = url;
+      img.className = 'print-sheet';
+      img.style.pageBreakAfter = i + 2 < previews.length ? 'always' : 'auto';
+      img.style.display = 'block';
+      
+      printContainer.appendChild(img);
+    }
+    
+    document.body.appendChild(printContainer);
+    
+    // Wait for images to load
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Check if running in Electron
+    if (window.electronAPI?.print) {
+      await window.electronAPI.print();
+    } else {
+      // Fallback to browser print
+      window.print();
+    }
+    
+    // Cleanup
+    setTimeout(() => {
+      document.body.removeChild(printContainer);
+    }, 1000);
   };
 
   const handleSave = () => {

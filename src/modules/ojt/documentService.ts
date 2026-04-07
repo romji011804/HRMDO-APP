@@ -166,9 +166,9 @@ function certificateNameLineHeight(name: string) {
   return 0.95;
 }
 
-function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: ResolvedCertificatePreview) {
+export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: ResolvedCertificatePreview) {
   const sheetW = 1600;
-  const sheetH = Math.round(sheetW * 4400 / 3400);
+  const sheetH = Math.round(sheetW * 4400 / 3400); // 2071 - maintains template proportions
   const slotH = Math.floor(sheetH / 2);
 
   function slotOverlays(preview: ResolvedCertificatePreview, offsetY: number) {
@@ -202,13 +202,26 @@ function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: ResolvedCertifi
 
   const topOverlays = slotOverlays(top, 0);
   const bottomOverlays = bottom ? slotOverlays(bottom, slotH) : "";
+  const separator = bottom ? `<line x1="0" y1="${slotH}" x2="${sheetW}" y2="${slotH}" stroke="#e0e0e0" stroke-width="2" stroke-dasharray="10,5" />` : "";
+
+  // Crop marks (corner dots) - 4mm from edges, 2mm diameter
+  const cropMarkSize = 8; // 2mm at 96 DPI
+  const cropMarkOffset = 15; // 4mm from edge
+  const cropMarks = `
+    <circle cx="${cropMarkOffset}" cy="${cropMarkOffset}" r="${cropMarkSize / 2}" fill="#000" opacity="0.6" />
+    <circle cx="${sheetW - cropMarkOffset}" cy="${cropMarkOffset}" r="${cropMarkSize / 2}" fill="#000" opacity="0.6" />
+    <circle cx="${cropMarkOffset}" cy="${sheetH - cropMarkOffset}" r="${cropMarkSize / 2}" fill="#000" opacity="0.6" />
+    <circle cx="${sheetW - cropMarkOffset}" cy="${sheetH - cropMarkOffset}" r="${cropMarkSize / 2}" fill="#000" opacity="0.6" />
+  `;
 
   return `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${sheetW}" height="${sheetH}" viewBox="0 0 ${sheetW} ${sheetH}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 ${sheetW} ${sheetH}" preserveAspectRatio="xMidYMid meet">
       <image href="${top.templateSrc}" x="0" y="0" width="${sheetW}" height="${sheetH}" preserveAspectRatio="none" />
       <rect x="0" y="0" width="${sheetW}" height="${sheetH}" fill="rgba(255,255,255,0.10)" />
       ${topOverlays}
+      ${separator}
       ${bottomOverlays}
+      ${cropMarks}
     </svg>
   `.trim();
 }

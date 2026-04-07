@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -245,5 +245,40 @@ ipcMain.handle('updater:downloadUpdate', async () => {
 ipcMain.handle('updater:quitAndInstall', () => {
   if (autoUpdater) {
     autoUpdater.quitAndInstall();
+  }
+});
+
+// Print handler with PDF preview
+ipcMain.handle('window:print', async (event) => {
+  const window = BrowserWindow.fromWebContents(event.sender);
+  if (!window) return { success: false, error: 'No window found' };
+  
+  try {
+    // Generate PDF for preview
+    const pdfData = await window.webContents.printToPDF({
+      printBackground: true,
+      pageSize: 'A4',
+      margins: {
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0
+      },
+      landscape: false,
+      preferCSSPageSize: true
+    });
+    
+    // Create a temporary file for the PDF
+    const tempPath = path.join(app.getPath('temp'), `certificate-preview-${Date.now()}.pdf`);
+    await fs.promises.writeFile(tempPath, pdfData);
+    
+    // Open the PDF in default viewer for preview and printing
+    const { shell } = require('electron');
+    await shell.openPath(tempPath);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Print error:', error);
+    return { success: false, error: error.message };
   }
 });

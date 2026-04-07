@@ -179,3 +179,47 @@
     line-height: 1.5;
   }
 }
+
+/* Print styles for certificate printing */
+@media print {
+  /* Hide everything except print sheets */
+  body > *:not(.print-sheets) {
+    display: none !important;
+  }
+
+  /* Show only print sheets */
+  .print-sheets {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Reset body and root */
+  body,
+  html {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* Certificate page setup - minimal margins */
+  @page {
+    size: A4 portrait;
+    margin: 5mm;
+  }
+
+  /* Each sheet image (2-up layout) - maximize size */
+  .print-sheet {
+    width: 100% !important;
+    height: 100vh !important;
+    max-width: 200mm !important;
+    max-height: 287mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    display: block !important;
+    page-break-inside: avoid !important;
+    object-fit: fill !important;
+    box-sizing: border-box !important;
+  }
+}

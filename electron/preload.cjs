@@ -206,4 +206,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
    * @returns {Promise<{ success: boolean, filePath: string }>}
    */
   saveBinaryFile: (filePath, data) => ipcRenderer.invoke('file:saveBinary', { filePath, data }),
+
+  /**
+   * Print the current page with preview dialog
+   * @returns {Promise<{ success: boolean, error?: string }>}
+   */
+  print: () => ipcRenderer.invoke('window:print'),
 });

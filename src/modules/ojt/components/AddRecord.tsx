@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pencil, Plus, Search, Trash2, UserPlus } from "lucide-react";
 import { useLocation } from "react-router";
 import { Button } from "../../../app/components/ui/button";
@@ -16,6 +16,13 @@ import {
   saveOjtStudents,
 } from "../storage";
 import type { OjtStudentRecord } from "../types";
+import { OjtInputAutocomplete } from "./OjtInputAutocomplete";
+import {
+  formatDateForDisplay,
+  initializeOjtRecentInputsFromRecords,
+  parseDateFromDisplay,
+  saveOjtRecentInput,
+} from "../recentInputHistory";
 
 const EMPTY_FORM = {
   firstName: "",
@@ -40,8 +47,8 @@ function toFormState(student?: OjtStudentRecord): StudentFormState {
     program: student?.program ?? "",
     school: student?.school ?? "",
     ojtHours: student?.ojtHours ?? "",
-    startDate: student?.startDate ?? "",
-    endDate: student?.endDate ?? "",
+    startDate: student?.startDate ? formatDateForDisplay(student.startDate) : "",
+    endDate: student?.endDate ? formatDateForDisplay(student.endDate) : "",
     office: student?.office ?? "",
     address: student?.address ?? "",
   };
@@ -57,6 +64,11 @@ export function OjtStudentsScreen() {
   const [editingStudentId, setEditingStudentId] = useState<string | null>(null);
   const [form, setForm] = useState<StudentFormState>(EMPTY_FORM);
   const [error, setError] = useState("");
+
+  // Initialize autocomplete history from existing records
+  useEffect(() => {
+    initializeOjtRecentInputsFromRecords(students);
+  }, [students]);
 
   const isAddMode = location.pathname === "/ojt/add-student";
   const pageTitle = isAddMode ? "Add Student" : "View Students";
@@ -92,6 +104,11 @@ export function OjtStudentsScreen() {
     }
 
     const now = new Date().toISOString();
+    
+    // Parse dates from display format to ISO format for storage
+    const startDateISO = form.startDate ? parseDateFromDisplay(form.startDate) : undefined;
+    const endDateISO = form.endDate ? parseDateFromDisplay(form.endDate) : undefined;
+    
     const nextStudent: OjtStudentRecord = {
       id: editingStudentId ?? crypto.randomUUID(),
       createdAt: students.find((student) => student.id === editingStudentId)?.createdAt ?? now,
@@ -101,11 +118,20 @@ export function OjtStudentsScreen() {
       program: form.program.trim(),
       school: form.school.trim(),
       ojtHours: form.ojtHours.trim() || undefined,
-      startDate: form.startDate.trim() || undefined,
-      endDate: form.endDate.trim() || undefined,
+      startDate: startDateISO,
+      endDate: endDateISO,
       office: form.office.trim() || undefined,
       address: form.address.trim() || undefined,
     };
+
+    // Save to recent inputs history
+    if (nextStudent.program) saveOjtRecentInput("program", nextStudent.program);
+    if (nextStudent.school) saveOjtRecentInput("school", nextStudent.school);
+    if (nextStudent.ojtHours) saveOjtRecentInput("ojtHours", nextStudent.ojtHours);
+    if (form.startDate) saveOjtRecentInput("startDate", form.startDate); // Save display format
+    if (form.endDate) saveOjtRecentInput("endDate", form.endDate); // Save display format
+    if (nextStudent.office) saveOjtRecentInput("office", nextStudent.office);
+    if (nextStudent.address) saveOjtRecentInput("address", nextStudent.address);
 
     const nextStudents = editingStudentId
       ? students.map((student) => (student.id === editingStudentId ? nextStudent : student))
@@ -191,7 +217,11 @@ export function OjtStudentsScreen() {
               </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
             {filteredStudents.length ? (
-              filteredStudents.map((student) => (
+              filteredStudents.map((student) => {
+                const startDateDisplay = student.startDate ? formatDateForDisplay(student.startDate) : "?";
+                const endDateDisplay = student.endDate ? formatDateForDisplay(student.endDate) : "?";
+                
+                return (
                 <tr key={student.id}>
                   <td className="px-5 py-4">
                     <div className="font-medium text-gray-900 dark:text-white">{getStudentDisplayName(student)}</div>
@@ -202,7 +232,7 @@ export function OjtStudentsScreen() {
                   <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{student.office || "No office assigned"}</td>
                   <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
                     {student.startDate || student.endDate
-                      ? `${student.startDate || "?"} - ${student.endDate || "?"}`
+                      ? `${startDateDisplay} - ${endDateDisplay}`
                       : `Hours: ${student.ojtHours || "N/A"}`}
                   </td>
                   <td className="px-5 py-4">
@@ -218,7 +248,8 @@ export function OjtStudentsScreen() {
                     </div>
                   </td>
                 </tr>
-              ))
+                );
+              })
             ) : (
               <tr>
                 <td colSpan={6} className="px-5 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -252,31 +283,73 @@ export function OjtStudentsScreen() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="ojt-program">Program</Label>
-              <Input id="ojt-program" value={form.program} onChange={(event) => setForm((current) => ({ ...current, program: event.target.value }))} />
+              <OjtInputAutocomplete
+                id="ojt-program"
+                field="program"
+                value={form.program}
+                placeholder="e.g., BS Information Technology"
+                onChange={(value) => setForm((current) => ({ ...current, program: value }))}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="ojt-school">School</Label>
-              <Input id="ojt-school" value={form.school} onChange={(event) => setForm((current) => ({ ...current, school: event.target.value }))} />
+              <OjtInputAutocomplete
+                id="ojt-school"
+                field="school"
+                value={form.school}
+                placeholder="e.g., Pangasinan State University"
+                onChange={(value) => setForm((current) => ({ ...current, school: value }))}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="ojt-hours">OJT hours</Label>
-              <Input id="ojt-hours" value={form.ojtHours} onChange={(event) => setForm((current) => ({ ...current, ojtHours: event.target.value }))} />
+              <OjtInputAutocomplete
+                id="ojt-hours"
+                field="ojtHours"
+                value={form.ojtHours}
+                placeholder="e.g., 486"
+                onChange={(value) => setForm((current) => ({ ...current, ojtHours: value }))}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="ojt-start-date">Start date</Label>
-              <Input id="ojt-start-date" value={form.startDate} onChange={(event) => setForm((current) => ({ ...current, startDate: event.target.value }))} placeholder="YYYY-MM-DD" />
+              <OjtInputAutocomplete
+                id="ojt-start-date"
+                field="startDate"
+                value={form.startDate}
+                placeholder="e.g., April 08, 2026"
+                onChange={(value) => setForm((current) => ({ ...current, startDate: value }))}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="ojt-end-date">End date</Label>
-              <Input id="ojt-end-date" value={form.endDate} onChange={(event) => setForm((current) => ({ ...current, endDate: event.target.value }))} placeholder="YYYY-MM-DD" />
+              <OjtInputAutocomplete
+                id="ojt-end-date"
+                field="endDate"
+                value={form.endDate}
+                placeholder="e.g., April 08, 2026"
+                onChange={(value) => setForm((current) => ({ ...current, endDate: value }))}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="ojt-office">Office / assignment</Label>
-              <Input id="ojt-office" value={form.office} onChange={(event) => setForm((current) => ({ ...current, office: event.target.value }))} />
+              <OjtInputAutocomplete
+                id="ojt-office"
+                field="office"
+                value={form.office}
+                placeholder="e.g., Provincial Government - ENRO"
+                onChange={(value) => setForm((current) => ({ ...current, office: value }))}
+              />
             </div>
             <div className="space-y-2 md:col-span-3">
               <Label htmlFor="ojt-address">Address</Label>
-              <Textarea id="ojt-address" value={form.address} onChange={(event) => setForm((current) => ({ ...current, address: event.target.value }))} rows={3} />
+              <OjtInputAutocomplete
+                id="ojt-address"
+                field="address"
+                value={form.address}
+                placeholder="e.g., Lingayen, Pangasinan"
+                onChange={(value) => setForm((current) => ({ ...current, address: value }))}
+              />
             </div>
           </div>
           <div className="flex items-center justify-between">

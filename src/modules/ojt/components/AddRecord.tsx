@@ -175,18 +175,20 @@ export function OjtStudentsScreen() {
         </div>
       </div>
 
+      {/* Scrollable table container */}
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-        <table className="w-full min-w-[960px]">
-          <thead className="bg-gray-50 dark:bg-gray-800/70">
-            <tr>
-              <th className="px-5 py-3 text-left text-xs uppercase tracking-wider text-gray-500">Student</th>
-              <th className="px-5 py-3 text-left text-xs uppercase tracking-wider text-gray-500">Program</th>
-              <th className="px-5 py-3 text-left text-xs uppercase tracking-wider text-gray-500">School</th>
-              <th className="px-5 py-3 text-left text-xs uppercase tracking-wider text-gray-500">Office</th>
-              <th className="px-5 py-3 text-left text-xs uppercase tracking-wider text-gray-500">OJT Dates</th>
-              <th className="px-5 py-3 text-right text-xs uppercase tracking-wider text-gray-500">Actions</th>
-            </tr>
-          </thead>
+        <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 400px)', minHeight: '400px' }}>
+            <table className="w-full min-w-[960px]">
+              <thead className="bg-gray-50 dark:bg-gray-800/70 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-10 backdrop-blur-sm">
+                <tr>
+                  <th className="px-5 py-3 text-left text-xs uppercase tracking-wider text-gray-500">Student</th>
+                  <th className="px-5 py-3 text-left text-xs uppercase tracking-wider text-gray-500">Program</th>
+                  <th className="px-5 py-3 text-left text-xs uppercase tracking-wider text-gray-500">School</th>
+                  <th className="px-5 py-3 text-left text-xs uppercase tracking-wider text-gray-500">Office</th>
+                  <th className="px-5 py-3 text-left text-xs uppercase tracking-wider text-gray-500">OJT Dates</th>
+                  <th className="px-5 py-3 text-right text-xs uppercase tracking-wider text-gray-500">Actions</th>
+                </tr>
+              </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
             {filteredStudents.length ? (
               filteredStudents.map((student) => (
@@ -226,6 +228,7 @@ export function OjtStudentsScreen() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

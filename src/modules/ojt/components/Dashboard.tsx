@@ -1,4 +1,4 @@
-import { Building2, GraduationCap, Printer, QrCode, UserPlus, Users } from "lucide-react";
+import { Building2, GraduationCap, Printer, UserPlus, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Button } from "../../../app/components/ui/button";
@@ -54,8 +54,7 @@ export function OjtDashboard() {
             </p>
             <h2 className="text-3xl font-semibold tracking-tight">OJT Management System</h2>
             <p className="max-w-2xl text-sm leading-6 text-blue-50/90">
-              Manage students first, generate QR references by program and school, then print certificate batches and reports
-              from the same data.
+              Manage students, generate certificates, and print reports from the same data.
             </p>
           </div>
           <div className="grid w-full gap-3 sm:grid-cols-2 lg:max-w-md">
@@ -80,16 +79,7 @@ export function OjtDashboard() {
             <Button
               type="button"
               variant="secondary"
-              className="justify-start bg-white text-blue-700 hover:bg-blue-50"
-              onClick={() => navigate("/ojt/qr-codes")}
-            >
-              <QrCode className="mr-2 h-4 w-4" />
-              Create QR
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              className="justify-start bg-white text-blue-700 hover:bg-blue-50"
+              className="justify-start bg-white text-blue-700 hover:bg-blue-50 sm:col-span-2"
               onClick={() => navigate("/ojt/reports")}
             >
               <Printer className="mr-2 h-4 w-4" />
@@ -98,18 +88,12 @@ export function OjtDashboard() {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <OjtStatCard
           title="Total Students"
           value={stats.studentCount}
           icon={<Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
           color="bg-blue-100 dark:bg-blue-900/30"
-        />
-        <OjtStatCard
-          title="QR Codes"
-          value={stats.qrCodeCount}
-          icon={<QrCode className="h-6 w-6 text-violet-600 dark:text-violet-400" />}
-          color="bg-violet-100 dark:bg-violet-900/30"
         />
         <OjtStatCard
           title="Schools"

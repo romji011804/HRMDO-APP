@@ -45,7 +45,6 @@ export function Sidebar() {
               { path: "/ojt", label: "Home", icon: GraduationCap },
               { path: "/ojt/add-student", label: "Add Student", icon: Plus },
               { path: "/ojt/view-students", label: "View Students", icon: Users },
-              { path: "/ojt/qr-codes", label: "Generate QR Code", icon: QrCode },
               { path: "/ojt/certificates", label: "Create Certificate", icon: FileText },
               { path: "/ojt/reports", label: "OJT Reports", icon: BarChart2 },
             ],
@@ -55,14 +54,14 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-72 shrink-0 bg-white/95 dark:bg-gray-900/95 border-r border-gray-200 dark:border-gray-800 flex flex-col shadow-sm backdrop-blur">
-      <div className="p-7 pb-6 border-b border-gray-100 dark:border-gray-800">
+    <aside className="w-72 shrink-0 bg-white/95 dark:bg-gray-900/95 border-r border-gray-200 dark:border-gray-800 flex flex-col shadow-sm backdrop-blur overflow-hidden">
+      <div className="p-7 pb-6 border-b border-gray-100 dark:border-gray-800 shrink-0">
         <h1 className="text-lg font-semibold leading-snug text-gray-900 dark:text-white">
           MOA & LO Tracking System
         </h1>
       </div>
 
-      <nav className="flex-1 space-y-5 px-4 py-5">
+      <nav className="flex-1 space-y-5 px-4 py-5 overflow-y-auto">
         {moduleGroups.map((group) => (
           <div key={group.title}>
             <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">
@@ -89,7 +88,7 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-gray-100 dark:border-gray-800">
+      <div className="p-4 border-t border-gray-100 dark:border-gray-800 shrink-0">
         <button
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           className="flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent w-full text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200"

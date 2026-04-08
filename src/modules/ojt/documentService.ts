@@ -204,16 +204,6 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
   const bottomOverlays = bottom ? slotOverlays(bottom, slotH) : "";
   const separator = bottom ? `<line x1="0" y1="${slotH}" x2="${sheetW}" y2="${slotH}" stroke="#e0e0e0" stroke-width="2" stroke-dasharray="10,5" />` : "";
 
-  // Crop marks (corner dots) - 4mm from edges, 2mm diameter
-  const cropMarkSize = 8; // 2mm at 96 DPI
-  const cropMarkOffset = 15; // 4mm from edge
-  const cropMarks = `
-    <circle cx="${cropMarkOffset}" cy="${cropMarkOffset}" r="${cropMarkSize / 2}" fill="#000" opacity="0.6" />
-    <circle cx="${sheetW - cropMarkOffset}" cy="${cropMarkOffset}" r="${cropMarkSize / 2}" fill="#000" opacity="0.6" />
-    <circle cx="${cropMarkOffset}" cy="${sheetH - cropMarkOffset}" r="${cropMarkSize / 2}" fill="#000" opacity="0.6" />
-    <circle cx="${sheetW - cropMarkOffset}" cy="${sheetH - cropMarkOffset}" r="${cropMarkSize / 2}" fill="#000" opacity="0.6" />
-  `;
-
   return `
     <svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 ${sheetW} ${sheetH}" preserveAspectRatio="xMidYMid meet">
       <image href="${top.templateSrc}" x="0" y="0" width="${sheetW}" height="${sheetH}" preserveAspectRatio="none" />
@@ -221,7 +211,6 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
       ${topOverlays}
       ${separator}
       ${bottomOverlays}
-      ${cropMarks}
     </svg>
   `.trim();
 }

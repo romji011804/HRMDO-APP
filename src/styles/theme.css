@@ -203,23 +203,21 @@
     height: 100% !important;
   }
 
-  /* Certificate page setup - minimal margins */
+  /* Certificate page setup - zero margins to fill page */
   @page {
     size: A4 portrait;
-    margin: 5mm;
+    margin: 0;
   }
 
-  /* Each sheet image (2-up layout) - maximize size */
+  /* Each sheet image (2-up layout) - fill entire page */
   .print-sheet {
-    width: 100% !important;
-    height: 100vh !important;
-    max-width: 200mm !important;
-    max-height: 287mm !important;
-    margin: 0 auto !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
     padding: 0 !important;
     display: block !important;
     page-break-inside: avoid !important;
-    object-fit: fill !important;
+    object-fit: contain !important;
     box-sizing: border-box !important;
   }
 }

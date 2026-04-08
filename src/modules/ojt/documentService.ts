@@ -167,32 +167,39 @@ function certificateNameLineHeight(name: string) {
 }
 
 export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: ResolvedCertificatePreview) {
-  const sheetW = 1600;
-  const sheetH = Math.round(sheetW * 4400 / 3400); // 2071 - maintains template proportions
+  // Letter size: 8.5 x 11 inches - fill entire page
+  const sheetW = 1700;
+  const sheetH = 2200;
   const slotH = Math.floor(sheetH / 2);
+  
+  // Template fills entire page - no scaling, no offset
+  const templateW = sheetW;
+  const templateH = sheetH;
+  const templateX = 0;
+  const templateY = 0;
 
   function slotOverlays(preview: ResolvedCertificatePreview, offsetY: number) {
     const completionLine = [preview.dateRangeLabel, preview.officeLine].filter(Boolean).join(" ");
     const metrics = certificateLayoutMetrics(preview, completionLine);
-    const qrImage = preview.qrSrc ? `<image href="${preview.qrSrc}" x="92" y="${offsetY + 769}" width="110" height="110" preserveAspectRatio="xMidYMid meet" />` : "";
+    const qrImage = preview.qrSrc ? `<image href="${preview.qrSrc}" x="92" y="${offsetY + 819}" width="110" height="110" preserveAspectRatio="xMidYMid meet" />` : "";
     return `
-      <foreignObject x="${Math.round((sheetW - metrics.nameWidth) / 2)}" y="${offsetY + 395}" width="${metrics.nameWidth}" height="155">
+      <foreignObject x="${Math.round((sheetW - metrics.nameWidth) / 2)}" y="${offsetY + 445}" width="${metrics.nameWidth}" height="155">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:${certificateNameLineHeight(preview.studentName)};letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;word-break:break-word;">
             ${escapeHtml(preview.studentName)}
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((sheetW - metrics.schoolWidth) / 2)}" y="${offsetY + 510}" width="${metrics.schoolWidth}" height="76">
+      <foreignObject x="${Math.round((sheetW - metrics.schoolWidth) / 2)}" y="${offsetY + 560}" width="${metrics.schoolWidth}" height="76">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.schoolFontSize}px;font-style:italic;line-height:1.22;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             (${escapeHtml(preview.subtitle)})
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((sheetW - 1300) / 2)}" y="${offsetY + 600}" width="1300" height="120">
+      <foreignObject x="${Math.round((sheetW - 1300) / 2)}" y="${offsetY + 650}" width="1300" height="120">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;line-height:1.15;text-align:center;color:rgba(17,17,17,0.92);">
             <div style="font-weight:700;text-transform:uppercase;color:#111;margin:0;padding:0;line-height:1.15;">${escapeHtml(preview.hoursLabel)}</div>
             <div style="font-weight:400;margin:0;padding:0;line-height:1.15;">${escapeHtml(completionLine)}</div>
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((sheetW - metrics.issuedWidth) / 2)}" y="${offsetY + 730}" width="${metrics.issuedWidth}" height="64">
+      <foreignObject x="${Math.round((sheetW - metrics.issuedWidth) / 2)}" y="${offsetY + 780}" width="${metrics.issuedWidth}" height="64">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.issuedFontSize}px;line-height:1.18;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             ${escapeHtml(preview.issuedLine)}
         </div>
@@ -205,8 +212,8 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
   const separator = bottom ? `<line x1="0" y1="${slotH}" x2="${sheetW}" y2="${slotH}" stroke="#e0e0e0" stroke-width="2" stroke-dasharray="10,5" />` : "";
 
   return `
-    <svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 ${sheetW} ${sheetH}" preserveAspectRatio="xMidYMid meet">
-      <image href="${top.templateSrc}" x="0" y="0" width="${sheetW}" height="${sheetH}" preserveAspectRatio="none" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="8.5in" height="11in" viewBox="0 0 ${sheetW} ${sheetH}" preserveAspectRatio="xMidYMid meet">
+      <image href="${top.templateSrc}" x="${templateX}" y="${templateY}" width="${templateW}" height="${templateH}" preserveAspectRatio="none" />
       <rect x="0" y="0" width="${sheetW}" height="${sheetH}" fill="rgba(255,255,255,0.10)" />
       ${topOverlays}
       ${separator}
@@ -216,34 +223,41 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
 }
 
 export function buildCertificateSvg(preview: ResolvedCertificatePreview) {
-  const certW = 1600;
-  const certH = Math.round(certW * 2200 / 3400); // Single certificate: half the template height
+  // Letter size: 8.5 x 11 inches - single certificate fills half page
+  const certW = 1700;
+  const certH = 1100;
+  
+  // Template fills entire certificate area
+  const templateW = certW;
+  const templateH = certH;
+  const templateX = 0;
+  const templateY = 0;
   
   const completionLine = [preview.dateRangeLabel, preview.officeLine].filter(Boolean).join(" ");
   const metrics = certificateLayoutMetrics(preview, completionLine);
-  const qrImage = preview.qrSrc ? `<image href="${preview.qrSrc}" x="92" y="769" width="110" height="110" preserveAspectRatio="xMidYMid meet" />` : "";
+  const qrImage = preview.qrSrc ? `<image href="${preview.qrSrc}" x="92" y="819" width="110" height="110" preserveAspectRatio="xMidYMid meet" />` : "";
   
   return `
     <svg xmlns="http://www.w3.org/2000/svg" width="${certW}" height="${certH}" viewBox="0 0 ${certW} ${certH}">
-      <image href="${preview.templateSrc}" x="0" y="0" width="${certW}" height="${certH}" preserveAspectRatio="xMinYMin slice" />
+      <image href="${preview.templateSrc}" x="${templateX}" y="${templateY}" width="${templateW}" height="${templateH}" preserveAspectRatio="none" />
       <rect x="0" y="0" width="${certW}" height="${certH}" fill="rgba(255,255,255,0.10)" />
-      <foreignObject x="${Math.round((certW - metrics.nameWidth) / 2)}" y="395" width="${metrics.nameWidth}" height="155">
+      <foreignObject x="${Math.round((certW - metrics.nameWidth) / 2)}" y="445" width="${metrics.nameWidth}" height="155">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:${certificateNameLineHeight(preview.studentName)};letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;word-break:break-word;">
             ${escapeHtml(preview.studentName)}
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((certW - metrics.schoolWidth) / 2)}" y="510" width="${metrics.schoolWidth}" height="76">
+      <foreignObject x="${Math.round((certW - metrics.schoolWidth) / 2)}" y="560" width="${metrics.schoolWidth}" height="76">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.schoolFontSize}px;font-style:italic;line-height:1.22;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             (${escapeHtml(preview.subtitle)})
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((certW - 1300) / 2)}" y="600" width="1300" height="120">
+      <foreignObject x="${Math.round((certW - 1300) / 2)}" y="650" width="1300" height="120">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;line-height:1.15;text-align:center;color:rgba(17,17,17,0.92);">
             <div style="font-weight:700;text-transform:uppercase;color:#111;margin:0;padding:0;line-height:1.15;">${escapeHtml(preview.hoursLabel)}</div>
             <div style="font-weight:400;margin:0;padding:0;line-height:1.15;">${escapeHtml(completionLine)}</div>
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((certW - metrics.issuedWidth) / 2)}" y="730" width="${metrics.issuedWidth}" height="64">
+      <foreignObject x="${Math.round((certW - metrics.issuedWidth) / 2)}" y="780" width="${metrics.issuedWidth}" height="64">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.issuedFontSize}px;line-height:1.18;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             ${escapeHtml(preview.issuedLine)}
         </div>
@@ -319,10 +333,10 @@ export function generateSummaryReportDocument({
         <style>
           * { box-sizing: border-box; }
           body { margin: 0; font-family: "Segoe UI", Tahoma, sans-serif; background: #eef3f8; color: #0f172a; }
-          .print-shell { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 12mm 0; }
-          .sheet { width: 210mm; min-height: 297mm; background: white; margin: 0 auto 8mm; padding: 8mm; box-shadow: 0 12px 40px rgba(15, 23, 42, 0.14); page-break-after: always; }
+          .print-shell { width: 8.5in; min-height: 11in; margin: 0 auto; padding: 0.5in 0; }
+          .sheet { width: 8.5in; min-height: 11in; background: white; margin: 0 auto 0.3in; padding: 0.4in; box-shadow: 0 12px 40px rgba(15, 23, 42, 0.14); page-break-after: always; }
           .sheet:last-child { page-break-after: auto; }
-          .report { padding: 14mm; }
+          .report { padding: 0.6in; }
           .report h1 { margin: 0 0 4mm; font-size: 28px; }
           .report__subtle { color: #475569; font-size: 13px; }
           .report__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; margin: 8mm 0 10mm; }

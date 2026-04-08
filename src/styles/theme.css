@@ -348,16 +348,16 @@
     height: 100% !important;
   }
 
-  /* Certificate page setup - zero margins to fill page */
+  /* Certificate page setup - Letter size (8.5 x 11 inches) with minimal margins */
   @page {
-    size: A4 portrait;
+    size: letter portrait;
     margin: 0;
   }
 
-  /* Each sheet image (2-up layout) - fill entire page */
+  /* Each sheet image (2-up layout) - Letter size dimensions */
   .print-sheet {
-    width: 210mm !important;
-    height: 297mm !important;
+    width: 8.5in !important;
+    height: 11in !important;
     margin: 0 !important;
     padding: 0 !important;
     display: block !important;

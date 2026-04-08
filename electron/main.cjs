@@ -263,10 +263,10 @@ ipcMain.handle('window:print', async (event) => {
   if (!window) return { success: false, error: 'No window found' };
   
   try {
-    // Generate PDF for preview
+    // Generate PDF for preview - Letter size (8.5 x 11 inches) - full bleed
     const pdfData = await window.webContents.printToPDF({
       printBackground: true,
-      pageSize: 'A4',
+      pageSize: 'Letter',
       margins: {
         top: 0,
         bottom: 0,

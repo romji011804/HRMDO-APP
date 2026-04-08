@@ -227,7 +227,7 @@ export function AddRecord() {
         </p>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-8 max-w-6xl">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-8">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           {/* Left Column */}
           <div className="space-y-6">

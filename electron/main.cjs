@@ -29,11 +29,20 @@ function createWindow() {
       nodeIntegration: false,
     },
     title: 'MOA & Legal Opinion Tracker',
+    show: false, // Don't show until ready to prevent flicker
   });
 
   // Remove menu bar completely
   mainWindow.setMenuBarVisibility(false);
   mainWindow.setMenu(null);
+
+  // Maximize window on startup for fullscreen experience
+  mainWindow.maximize();
+
+  // Show window after it's ready and maximized
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+  });
 
   // Load the app
   if (process.env.NODE_ENV === 'development') {

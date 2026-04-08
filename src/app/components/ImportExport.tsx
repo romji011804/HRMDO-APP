@@ -504,7 +504,7 @@ export function ImportExport() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Machine Info */}
         <div className="lg:col-span-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
           <div className="flex items-start gap-3">

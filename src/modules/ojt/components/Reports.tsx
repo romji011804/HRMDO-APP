@@ -120,7 +120,7 @@ export function OjtReports() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 max-w-7xl">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* ── Settings card ── */}
         <div className="xl:col-span-1 bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 self-start">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-5 flex items-center gap-2">

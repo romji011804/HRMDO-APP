@@ -128,6 +128,112 @@
     @apply bg-background text-foreground;
   }
 
+  /* Disable text selection for desktop app feel */
+  /* Apply to all elements by default */
+  * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    /* Prevent drag behavior on images and links */
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+  }
+
+  /* Prevent default drag behavior on images */
+  img {
+    pointer-events: auto;
+    -webkit-user-drag: none;
+  }
+
+  /* Prevent default drag behavior on links */
+  a {
+    -webkit-user-drag: none;
+  }
+
+  /* Re-enable text selection for editable elements */
+  input,
+  textarea,
+  [contenteditable="true"],
+  [contenteditable="plaintext-only"] {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
+
+  /* Allow selection in specific content areas where users might want to copy text */
+  .selectable,
+  .allow-select {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
+
+  /* Prevent text selection highlight color from showing on UI elements */
+  *::selection {
+    background: transparent;
+    color: inherit;
+  }
+
+  *::-moz-selection {
+    background: transparent;
+    color: inherit;
+  }
+
+  /* Re-enable selection highlight for inputs and textareas */
+  input::selection,
+  textarea::selection,
+  [contenteditable="true"]::selection,
+  [contenteditable="plaintext-only"]::selection,
+  .selectable::selection,
+  .allow-select::selection {
+    background: rgba(59, 130, 246, 0.3);
+    color: inherit;
+  }
+
+  input::-moz-selection,
+  textarea::-moz-selection,
+  [contenteditable="true"]::-moz-selection,
+  [contenteditable="plaintext-only"]::-moz-selection,
+  .selectable::-moz-selection,
+  .allow-select::-moz-selection {
+    background: rgba(59, 130, 246, 0.3);
+    color: inherit;
+  }
+
+  /* Cursor styles for better desktop app feel */
+  button,
+  [role="button"],
+  a,
+  label[for],
+  select {
+    cursor: pointer;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="date"],
+  textarea {
+    cursor: text;
+  }
+
+  input[disabled],
+  button[disabled],
+  select[disabled],
+  textarea[disabled] {
+    cursor: not-allowed;
+  }
+
   /**
   * Default typography styles for HTML elements (h1-h4, p, label, button, input).
   * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.

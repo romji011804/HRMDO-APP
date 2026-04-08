@@ -223,41 +223,41 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
 }
 
 export function buildCertificateSvg(preview: ResolvedCertificatePreview) {
-  // Letter size: 8.5 x 11 inches - single certificate fills half page
+  // Single certificate SVG - fills one space only (used for downloads)
   const certW = 1700;
-  const certH = 1100;
-  
-  // Template fills entire certificate area
-  const templateW = certW;
-  const templateH = certH;
-  const templateX = 0;
-  const templateY = 0;
+  const certH = 1100; // Single certificate space height
   
   const completionLine = [preview.dateRangeLabel, preview.officeLine].filter(Boolean).join(" ");
   const metrics = certificateLayoutMetrics(preview, completionLine);
-  const qrImage = preview.qrSrc ? `<image href="${preview.qrSrc}" x="92" y="819" width="110" height="110" preserveAspectRatio="xMidYMid meet" />` : "";
+  
+  const nameY = 445;
+  const schoolY = 560;
+  const hoursY = 650;
+  const issuedY = 780;
+  const qrY = 819;
+  
+  const qrImage = preview.qrSrc ? `<image href="${preview.qrSrc}" x="92" y="${qrY}" width="110" height="110" preserveAspectRatio="xMidYMid meet" />` : "";
   
   return `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${certW}" height="${certH}" viewBox="0 0 ${certW} ${certH}">
-      <image href="${preview.templateSrc}" x="${templateX}" y="${templateY}" width="${templateW}" height="${templateH}" preserveAspectRatio="none" />
-      <rect x="0" y="0" width="${certW}" height="${certH}" fill="rgba(255,255,255,0.10)" />
-      <foreignObject x="${Math.round((certW - metrics.nameWidth) / 2)}" y="445" width="${metrics.nameWidth}" height="155">
+    <svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1100" viewBox="0 0 ${certW} ${certH}">
+      <rect x="0" y="0" width="${certW}" height="${certH}" fill="white" />
+      <foreignObject x="${Math.round((certW - metrics.nameWidth) / 2)}" y="${nameY}" width="${metrics.nameWidth}" height="155">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:${certificateNameLineHeight(preview.studentName)};letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;word-break:break-word;">
             ${escapeHtml(preview.studentName)}
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((certW - metrics.schoolWidth) / 2)}" y="560" width="${metrics.schoolWidth}" height="76">
+      <foreignObject x="${Math.round((certW - metrics.schoolWidth) / 2)}" y="${schoolY}" width="${metrics.schoolWidth}" height="76">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.schoolFontSize}px;font-style:italic;line-height:1.22;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             (${escapeHtml(preview.subtitle)})
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((certW - 1300) / 2)}" y="650" width="1300" height="120">
+      <foreignObject x="${Math.round((certW - 1300) / 2)}" y="${hoursY}" width="1300" height="120">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;line-height:1.15;text-align:center;color:rgba(17,17,17,0.92);">
             <div style="font-weight:700;text-transform:uppercase;color:#111;margin:0;padding:0;line-height:1.15;">${escapeHtml(preview.hoursLabel)}</div>
             <div style="font-weight:400;margin:0;padding:0;line-height:1.15;">${escapeHtml(completionLine)}</div>
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((certW - metrics.issuedWidth) / 2)}" y="780" width="${metrics.issuedWidth}" height="64">
+      <foreignObject x="${Math.round((certW - metrics.issuedWidth) / 2)}" y="${issuedY}" width="${metrics.issuedWidth}" height="64">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.issuedFontSize}px;line-height:1.18;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             ${escapeHtml(preview.issuedLine)}
         </div>

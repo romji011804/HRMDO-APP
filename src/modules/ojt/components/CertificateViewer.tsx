@@ -19,28 +19,30 @@ interface ViewerState {
   selectedIds?: string[];
 }
 
-function CertificateCard({ preview }: { preview: ResolvedCertificatePreview }) {
+function CertificateSheet({ top, bottom }: { top: ResolvedCertificatePreview; bottom?: ResolvedCertificatePreview }) {
   const [svgDataUrl, setSvgDataUrl] = useState<string>("");
 
   useEffect(() => {
-    // Import the buildSheetSvg function or create the SVG here
-    const completionLine = [preview.dateRangeLabel, preview.officeLine].filter(Boolean).join(" ");
-    
-    // Generate the same SVG that will be downloaded
-    const svg = buildCertificateSvg(preview);
+    // Generate 2-up sheet SVG for preview (same as print)
+    const svg = buildSheetSvg(top, bottom);
     const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     setSvgDataUrl(url);
 
     return () => URL.revokeObjectURL(url);
-  }, [preview]);
+  }, [top, bottom]);
 
   return (
-    <article className="relative mx-auto aspect-[1600/1035] w-full max-w-[1400px] overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-lg">
+    <article className="relative mx-auto w-full max-w-[1000px] overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-lg">
       {svgDataUrl ? (
-        <img src={svgDataUrl} alt={`Certificate for ${preview.studentName}`} className="h-full w-full object-contain" />
+        <img 
+          src={svgDataUrl} 
+          alt={`Certificate sheet`} 
+          className="w-full h-auto object-contain"
+          style={{ display: 'block' }}
+        />
       ) : (
-        <div className="flex h-full items-center justify-center text-gray-500">Loading certificate...</div>
+        <div className="flex h-full items-center justify-center text-gray-500 py-20">Loading certificate...</div>
       )}
     </article>
   );
@@ -131,9 +133,11 @@ export function OjtCertificateViewer() {
 
       {previews.length ? (
         <div className="space-y-8">
-          {previews.map((preview) => (
-            <CertificateCard key={preview.id} preview={preview} />
-          ))}
+          {Array.from({ length: Math.ceil(previews.length / 2) }, (_, i) => {
+            const top = previews[i * 2];
+            const bottom = previews[i * 2 + 1];
+            return <CertificateSheet key={`sheet-${i}`} top={top} bottom={bottom} />;
+          })}
         </div>
       ) : (
         <div className="rounded-3xl border border-gray-200 bg-white p-10 text-center text-sm text-gray-500 shadow-sm">

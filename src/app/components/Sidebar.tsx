@@ -10,14 +10,23 @@ import {
   GraduationCap,
   QrCode,
   Users,
+  Info,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { ENABLE_OJT_MODULE } from "../../shared/config/featureFlags";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 
 export function Sidebar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -25,12 +34,9 @@ export function Sidebar() {
 
   const moduleGroups = [
     {
-      title: "Shared",
-      items: [{ path: "/", label: "MOA / LO Dashboard", icon: LayoutDashboard }],
-    },
-    {
       title: "MOA / LO",
       items: [
+        { path: "/", label: "MOA / LO Dashboard", icon: LayoutDashboard },
         { path: "/moa-lo/add-record", label: "Add Record", icon: Plus },
         { path: "/moa-lo/view-records", label: "View Records", icon: FileText },
         { path: "/moa-lo/import-export", label: "Import / Export", icon: ArrowLeftRight },
@@ -43,7 +49,6 @@ export function Sidebar() {
             title: "OJT",
             items: [
               { path: "/ojt", label: "Home", icon: GraduationCap },
-              { path: "/ojt/add-student", label: "Add Student", icon: Plus },
               { path: "/ojt/view-students", label: "View Students", icon: Users },
               { path: "/ojt/certificates", label: "Create Certificate", icon: FileText },
               { path: "/ojt/reports", label: "OJT Reports", icon: BarChart2 },
@@ -89,18 +94,53 @@ export function Sidebar() {
       </nav>
 
       <div className="p-4 border-t border-gray-100 dark:border-gray-800 shrink-0">
-        <button
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent w-full text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200"
-        >
-          {mounted && theme === "dark" ? (
-            <Sun className="w-5 h-5" />
-          ) : (
-            <Moon className="w-5 h-5" />
-          )}
-          <span>{mounted && theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl border border-transparent flex-1 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200"
+          >
+            {mounted && theme === "dark" ? (
+              <Sun className="w-5 h-5" />
+            ) : (
+              <Moon className="w-5 h-5" />
+            )}
+            <span>{mounted && theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+          </button>
+          <button
+            onClick={() => setAboutDialogOpen(true)}
+            className="flex items-center justify-center px-4 py-3 rounded-xl border border-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200"
+            title="About Application"
+          >
+            <Info className="w-5 h-5" />
+          </button>
+        </div>
       </div>
+
+      <Dialog open={aboutDialogOpen} onOpenChange={setAboutDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl">About Application</DialogTitle>
+            <DialogDescription className="sr-only">
+              Information about the MOA & LO Tracking System application
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+            <p>
+              This application, titled <span className="font-semibold">MOA & LO Tracking System</span>, was developed by{" "}
+              <span className="font-semibold">Juel Jerome De Castro</span> in response to the request of{" "}
+              <span className="font-semibold">Ms. Patrice Ysabel P. Gayaban</span>, to streamline and manage the tracking of Memorandum of Agreement (MOA) and Legal Opinion (LO) documents within the office. The system is designed to improve record organization, monitoring, and reporting efficiency through a structured and user-friendly interface.
+            </p>
+            <p>
+              The <span className="font-semibold">OJT Certificate Management System</span> component was originally developed by a previous OJT under the supervision of{" "}
+              <span className="font-semibold">Ms. May M. Orteo</span>, with the purpose of managing, generating, and organizing On-the-Job Training (OJT) certificates.
+            </p>
+            <p>
+              To further enhance operational efficiency and eliminate redundancy between systems,{" "}
+              <span className="font-semibold">Ms. Philine Pioquinto</span> initiated the integration of both applications into a single, optimized platform. This unified system aims to centralize document tracking and certificate management, providing a more streamlined workflow, improved data consistency, and a more effective user experience.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </aside>
   );
 }

@@ -8,7 +8,6 @@ import {
   ArrowLeftRight,
   BarChart2,
   GraduationCap,
-  QrCode,
   Users,
   Info,
   Upload,
@@ -69,11 +68,11 @@ export function Sidebar() {
 
   return (
     <aside 
-      className={`shrink-0 bg-white/95 dark:bg-gray-900/95 border-r border-gray-200 dark:border-gray-800 flex flex-col shadow-sm backdrop-blur overflow-hidden transition-all duration-300 ease-in-out ${
+      className={`shrink-0 bg-white/95 dark:bg-gray-900/95 border-r border-gray-200 dark:border-gray-800 flex flex-col shadow-sm backdrop-blur transition-all duration-300 ease-in-out ${
         isCollapsed ? 'w-0 border-r-0' : 'w-72'
       }`}
     >
-      <div className={`transition-opacity duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`flex flex-col h-full transition-opacity duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
         <div className="p-7 pb-6 border-b border-gray-100 dark:border-gray-800 shrink-0">
           <h1 className="text-lg font-semibold leading-snug text-gray-900 dark:text-white">
             Platform for Agreements, Tracking, and Records of Internship and Certification

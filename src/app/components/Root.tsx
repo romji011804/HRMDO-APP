@@ -10,7 +10,7 @@ export function Root() {
       <SidebarProvider>
         <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300 overflow-hidden">
           <TitleBar />
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 overflow-hidden mt-8">
             <Sidebar />
             <main className="flex-1 overflow-y-auto">
               <Outlet />

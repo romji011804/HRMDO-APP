@@ -178,37 +178,82 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
   const templateX = 0;
   const templateY = 0;
 
-  function slotOverlays(preview: ResolvedCertificatePreview, offsetY: number) {
+  function topSlotOverlays(preview: ResolvedCertificatePreview, offsetY: number) {
     const completionLine = [preview.dateRangeLabel, preview.officeLine].filter(Boolean).join(" ");
     const metrics = certificateLayoutMetrics(preview, completionLine);
-    const qrImage = preview.qrSrc ? `<image href="${preview.qrSrc}" x="92" y="${offsetY + 819}" width="110" height="110" preserveAspectRatio="xMidYMid meet" />` : "";
+    
+    // TOP certificate positions
+    const nameY = offsetY + 420;
+    const schoolY = offsetY + 540;
+    const hoursY = offsetY + 635;
+    const issuedY = offsetY + 800;
+    const qrY = offsetY + 850;
+    
+    const qrImage = preview.qrSrc ? `<image href="${preview.qrSrc}" x="92" y="${qrY}" width="110" height="110" preserveAspectRatio="xMidYMid meet" />` : "";
     return `
-      <foreignObject x="${Math.round((sheetW - metrics.nameWidth) / 2)}" y="${offsetY + 445}" width="${metrics.nameWidth}" height="155">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:${certificateNameLineHeight(preview.studentName)};letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;word-break:break-word;">
+      <foreignObject x="${Math.round((sheetW - metrics.nameWidth) / 2)}" y="${nameY}" width="${metrics.nameWidth}" height="90">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:0.95;letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;word-break:break-word;">
             ${escapeHtml(preview.studentName)}
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((sheetW - metrics.schoolWidth) / 2)}" y="${offsetY + 560}" width="${metrics.schoolWidth}" height="76">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.schoolFontSize}px;font-style:italic;line-height:1.22;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
+      <foreignObject x="${Math.round((sheetW - metrics.schoolWidth) / 2)}" y="${schoolY}" width="${metrics.schoolWidth}" height="70">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.schoolFontSize}px;font-style:italic;line-height:1.2;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             (${escapeHtml(preview.subtitle)})
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((sheetW - 1300) / 2)}" y="${offsetY + 650}" width="1300" height="120">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;line-height:1.15;text-align:center;color:rgba(17,17,17,0.92);">
-            <div style="font-weight:700;text-transform:uppercase;color:#111;margin:0;padding:0;line-height:1.15;">${escapeHtml(preview.hoursLabel)}</div>
-            <div style="font-weight:400;margin:0;padding:0;line-height:1.15;">${escapeHtml(completionLine)}</div>
+      <foreignObject x="${Math.round((sheetW - 1300) / 2)}" y="${hoursY}" width="1300" height="150">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;line-height:1.25;text-align:center;color:rgba(17,17,17,0.92);">
+            <div style="font-weight:700;text-transform:uppercase;color:#111;margin:0 0 6px 0;padding:0;line-height:1.2;">${escapeHtml(preview.hoursLabel)}</div>
+            <div style="font-weight:400;margin:0;padding:0;line-height:1.3;">${escapeHtml(completionLine)}</div>
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((sheetW - metrics.issuedWidth) / 2)}" y="${offsetY + 780}" width="${metrics.issuedWidth}" height="64">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.issuedFontSize}px;line-height:1.18;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
+      <foreignObject x="${Math.round((sheetW - metrics.issuedWidth) / 2)}" y="${issuedY}" width="${metrics.issuedWidth}" height="70">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.issuedFontSize}px;line-height:1.2;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             ${escapeHtml(preview.issuedLine)}
         </div>
       </foreignObject>
       ${qrImage}`;
   }
 
-  const topOverlays = slotOverlays(top, 0);
-  const bottomOverlays = bottom ? slotOverlays(bottom, slotH) : "";
+  function bottomSlotOverlays(preview: ResolvedCertificatePreview, offsetY: number) {
+    const completionLine = [preview.dateRangeLabel, preview.officeLine].filter(Boolean).join(" ");
+    const metrics = certificateLayoutMetrics(preview, completionLine);
+    
+    // BOTTOM certificate positions
+    const nameY = offsetY + 400;
+    const schoolY = offsetY + 520;
+    const hoursY = offsetY + 615;
+    const issuedY = offsetY + 800;
+    const qrY = offsetY + 850;
+    
+    const qrImage = preview.qrSrc ? `<image href="${preview.qrSrc}" x="92" y="${qrY}" width="110" height="110" preserveAspectRatio="xMidYMid meet" />` : "";
+    return `
+      <foreignObject x="${Math.round((sheetW - metrics.nameWidth) / 2)}" y="${nameY}" width="${metrics.nameWidth}" height="90">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:0.95;letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;word-break:break-word;">
+            ${escapeHtml(preview.studentName)}
+        </div>
+      </foreignObject>
+      <foreignObject x="${Math.round((sheetW - metrics.schoolWidth) / 2)}" y="${schoolY}" width="${metrics.schoolWidth}" height="70">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.schoolFontSize}px;font-style:italic;line-height:1.2;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
+            (${escapeHtml(preview.subtitle)})
+        </div>
+      </foreignObject>
+      <foreignObject x="${Math.round((sheetW - 1300) / 2)}" y="${hoursY}" width="1300" height="150">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;line-height:1.25;text-align:center;color:rgba(17,17,17,0.92);">
+            <div style="font-weight:700;text-transform:uppercase;color:#111;margin:0 0 6px 0;padding:0;line-height:1.2;">${escapeHtml(preview.hoursLabel)}</div>
+            <div style="font-weight:400;margin:0;padding:0;line-height:1.3;">${escapeHtml(completionLine)}</div>
+        </div>
+      </foreignObject>
+      <foreignObject x="${Math.round((sheetW - metrics.issuedWidth) / 2)}" y="${issuedY}" width="${metrics.issuedWidth}" height="70">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.issuedFontSize}px;line-height:1.2;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
+            ${escapeHtml(preview.issuedLine)}
+        </div>
+      </foreignObject>
+      ${qrImage}`;
+  }
+
+  const topOverlays = topSlotOverlays(top, 0);
+  const bottomOverlays = bottom ? bottomSlotOverlays(bottom, slotH) : "";
   const separator = bottom ? `<line x1="0" y1="${slotH}" x2="${sheetW}" y2="${slotH}" stroke="#e0e0e0" stroke-width="2" stroke-dasharray="10,5" />` : "";
 
   return `
@@ -230,35 +275,36 @@ export function buildCertificateSvg(preview: ResolvedCertificatePreview) {
   const completionLine = [preview.dateRangeLabel, preview.officeLine].filter(Boolean).join(" ");
   const metrics = certificateLayoutMetrics(preview, completionLine);
   
-  const nameY = 445;
-  const schoolY = 560;
-  const hoursY = 650;
-  const issuedY = 780;
-  const qrY = 819;
+  // Vertical flow structure anchored to template text
+  const nameY = 400;      // Below "is awarded to"
+  const schoolY = 395;    // Tight below name
+  const hoursY = 500;     // Below "for having successfully completed"
+  const issuedY = 660;    // Below message block
+  const qrY = 750;        // QR code position
   
   const qrImage = preview.qrSrc ? `<image href="${preview.qrSrc}" x="92" y="${qrY}" width="110" height="110" preserveAspectRatio="xMidYMid meet" />` : "";
   
   return `
     <svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1100" viewBox="0 0 ${certW} ${certH}">
       <rect x="0" y="0" width="${certW}" height="${certH}" fill="white" />
-      <foreignObject x="${Math.round((certW - metrics.nameWidth) / 2)}" y="${nameY}" width="${metrics.nameWidth}" height="155">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:${certificateNameLineHeight(preview.studentName)};letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;word-break:break-word;">
+      <foreignObject x="${Math.round((certW - metrics.nameWidth) / 2)}" y="${nameY}" width="${metrics.nameWidth}" height="90">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:0.95;letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;word-break:break-word;">
             ${escapeHtml(preview.studentName)}
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((certW - metrics.schoolWidth) / 2)}" y="${schoolY}" width="${metrics.schoolWidth}" height="76">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.schoolFontSize}px;font-style:italic;line-height:1.22;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
+      <foreignObject x="${Math.round((certW - metrics.schoolWidth) / 2)}" y="${schoolY}" width="${metrics.schoolWidth}" height="70">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.schoolFontSize}px;font-style:italic;line-height:1.2;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             (${escapeHtml(preview.subtitle)})
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((certW - 1300) / 2)}" y="${hoursY}" width="1300" height="120">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;line-height:1.15;text-align:center;color:rgba(17,17,17,0.92);">
-            <div style="font-weight:700;text-transform:uppercase;color:#111;margin:0;padding:0;line-height:1.15;">${escapeHtml(preview.hoursLabel)}</div>
-            <div style="font-weight:400;margin:0;padding:0;line-height:1.15;">${escapeHtml(completionLine)}</div>
+      <foreignObject x="${Math.round((certW - 1300) / 2)}" y="${hoursY}" width="1300" height="150">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;line-height:1.25;text-align:center;color:rgba(17,17,17,0.92);">
+            <div style="font-weight:700;text-transform:uppercase;color:#111;margin:0 0 6px 0;padding:0;line-height:1.2;">${escapeHtml(preview.hoursLabel)}</div>
+            <div style="font-weight:400;margin:0;padding:0;line-height:1.3;">${escapeHtml(completionLine)}</div>
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((certW - metrics.issuedWidth) / 2)}" y="${issuedY}" width="${metrics.issuedWidth}" height="64">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.issuedFontSize}px;line-height:1.18;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
+      <foreignObject x="${Math.round((certW - metrics.issuedWidth) / 2)}" y="${issuedY}" width="${metrics.issuedWidth}" height="70">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.issuedFontSize}px;line-height:1.2;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             ${escapeHtml(preview.issuedLine)}
         </div>
       </foreignObject>

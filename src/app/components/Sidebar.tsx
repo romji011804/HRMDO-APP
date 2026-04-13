@@ -75,8 +75,8 @@ export function Sidebar() {
     >
       <div className={`transition-opacity duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
         <div className="p-7 pb-6 border-b border-gray-100 dark:border-gray-800 shrink-0">
-          <h1 className="text-lg font-semibold leading-snug text-gray-900 dark:text-white whitespace-nowrap">
-            MOA & LO Tracking System
+          <h1 className="text-lg font-semibold leading-snug text-gray-900 dark:text-white">
+            Platform for Agreements, Tracking, and Records of Internship and Certification
           </h1>
         </div>
 
@@ -143,16 +143,20 @@ export function Sidebar() {
           <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
             <p>
               This application, titled <span className="font-semibold">MOA & LO Tracking System</span>, was developed by{" "}
-              <span className="font-semibold">Juel Jerome De Castro</span> in response to the request of{" "}
+              <span className="font-semibold">Juel Jerome C. De Castro</span> in response to the request of{" "}
               <span className="font-semibold">Ms. Patrice Ysabel P. Gayaban</span>, to streamline and manage the tracking of Memorandum of Agreement (MOA) and Legal Opinion (LO) documents within the office. The system is designed to improve record organization, monitoring, and reporting efficiency through a structured and user-friendly interface.
             </p>
             <p>
-              The <span className="font-semibold">OJT Certificate Management System</span> component was originally developed by a previous OJT under the supervision of{" "}
+              The <span className="font-semibold">OJT Certificate Management System</span> component was originally developed by{" "}
+              <span className="font-semibold">John Paul S. Baybayan</span> under the supervision of{" "}
               <span className="font-semibold">Ms. May M. Orteo</span>, with the purpose of managing, generating, and organizing On-the-Job Training (OJT) certificates.
             </p>
             <p>
               To further enhance operational efficiency and eliminate redundancy between systems,{" "}
-              <span className="font-semibold">Ms. Philine Pioquinto</span> initiated the integration of both applications into a single, optimized platform. This unified system aims to centralize document tracking and certificate management, providing a more streamlined workflow, improved data consistency, and a more effective user experience.
+              <span className="font-semibold">Ms. Philine Pioquinto</span> initiated the integration of both applications into a single, optimized platform.
+            </p>
+            <p>
+              This unified system aims to centralize document tracking and certificate management, providing a more streamlined workflow, improved data consistency, and a more effective user experience.
             </p>
           </div>
         </DialogContent>

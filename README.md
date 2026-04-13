@@ -1,31 +1,27 @@
 # MOA & LO Tracking System
-
-A desktop application for managing Memorandum of Agreement (MOA), Legal Opinion (LO) documents, and OJT Certificate Management.
+This system is designed to assist the office in organizing, tracking, and generating reports for important documents and OJT records. It simplifies workflows and reduces manual tracking through a structured and user-friendly interface.
 
 ## 📋 What This Application Does
-
-### MOA & LO Tracking
+1. MOA & LO Tracking
 - Track and manage MOA and Legal Opinion documents
 - Store document details and attachments
 - Generate monthly and quarterly reports
 - Import/Export records between computers
 - Search and filter documents
 
-### OJT Certificate Management
+2. OJT Certificate Management
 - Manage OJT student records
 - Generate certificates with QR codes
 - Create monthly and quarterly reports
 - Import/Export student data (JSON and CSV)
 - Track student progress
 
-## 🚀 Installation
-
+## Installation
 1. Run `MOA LO Tracker Setup 0.0.1.exe`
 2. Follow the installation wizard
 3. Launch the application
 
-## 💻 For Developers
-
+## For Developers
 ### Setup
 ```bash
 npm install
@@ -44,14 +40,14 @@ npm run electron:build
 
 The installer will be created in the `release/` folder.
 
-## 📁 Data Storage
+## Data Storage
 
 All data is stored locally on your computer at:
 ```
 %APPDATA%\moa-lo-tracker\
 ```
 
-## 🔄 Sharing Data Between Computers
+## Sharing Data Between Computers
 
 ### Export Data
 1. Go to Import/Export page
@@ -64,7 +60,7 @@ All data is stored locally on your computer at:
 3. Select the JSON file
 4. Duplicates are automatically skipped
 
-## ⚙️ Key Features
+## Key Features
 
 - **Dark/Light Theme** - Switch themes using the button in the sidebar
 - **Auto Reports** - Schedule monthly or quarterly reports
@@ -72,7 +68,7 @@ All data is stored locally on your computer at:
 - **Offline** - Works completely offline, no internet required
 - **Fullscreen** - Launches in maximized window for better workspace
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 - **Electron** - Desktop application framework
 - **React** - User interface
@@ -80,7 +76,7 @@ All data is stored locally on your computer at:
 - **Vite** - Build tool
 - **Tailwind CSS** - Styling
 
-## 👥 Credits
+## Credits
 
 **Developed by:** Juel Jerome De Castro
 
@@ -90,14 +86,14 @@ All data is stored locally on your computer at:
 
 **Integration Initiative:** Ms. Philine Pioquinto
 
-## 📞 Support
+## Support
 
-For issues or questions, contact the IT Department at Provincial Government - Pangasinan.
+For issues or questions, contact the IT Department at Human Resource Management and Development Office - Pangasinan.
 
-## 📝 Version
+## Version
 
 Current Version: 0.0.1
 
 ---
 
-© 2026 Provincial Government of Pangasinan - Legal Office
+© 2026 Human Resource Management and Development Office (HRMDO)

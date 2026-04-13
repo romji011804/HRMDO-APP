@@ -28,7 +28,7 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
     },
-    title: 'MOA & Legal Opinion Tracker',
+    title: 'Platform for Agreements, Tracking, and Records of Internship and Certification',
     show: false, // Don't show until ready to prevent flicker
   });
 

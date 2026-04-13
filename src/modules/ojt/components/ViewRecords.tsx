@@ -175,12 +175,9 @@ export function OjtCertificatesScreen() {
                         {student.program} - {student.endDate ? new Date(student.endDate).getFullYear() : new Date().getFullYear()}
                       </p>
                       <p className="text-sm text-gray-500">{student.school}</p>
-                      {!qrRecord ? (
-                        <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-amber-700">
-                          <AlertTriangle className="h-3.5 w-3.5" />
-                          Missing QR Code
-                        </p>
-                      ) : null}
+                      <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-violet-700">
+                        {student.ojtHours ? `${student.ojtHours} Hours on the Job Training` : "0 Hours"}
+                      </p>
                     </div>
                   </div>
                   <input

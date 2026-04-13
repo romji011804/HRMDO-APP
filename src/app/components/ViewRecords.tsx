@@ -594,9 +594,6 @@ export function ViewRecords() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Date and Time
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Documents
-                </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Actions
                 </th>
@@ -609,6 +606,28 @@ export function ViewRecords() {
                   const hasBrokenMoa = Boolean(record.moaValue) && docState?.moa === false;
                   const hasBrokenLo =
                     Boolean(record.legalOpinionValue) && docState?.lo === false;
+                  
+                  // Determine workflow stage based on document completeness
+                  const hasMoa = Boolean(record.moaValue) && docState?.moa !== false;
+                  const hasLo = Boolean(record.legalOpinionValue) && docState?.lo !== false;
+                  
+                  let workflowStage = "";
+                  let workflowColor = "";
+                  
+                  if (!hasMoa && !hasLo) {
+                    workflowStage = "Missing MOA & LO";
+                    workflowColor = "text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20";
+                  } else if (!hasMoa) {
+                    workflowStage = "Missing Memorandum of Agreement";
+                    workflowColor = "text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20";
+                  } else if (!hasLo) {
+                    workflowStage = "Missing Legal Opinion";
+                    workflowColor = "text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20";
+                  } else {
+                    workflowStage = "Complete";
+                    workflowColor = "text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20";
+                  }
+                  
                   return (
                 <tr
                   key={record.id}
@@ -654,8 +673,12 @@ export function ViewRecords() {
                       {record.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                    {record.workflow}
+                  <td className="px-6 py-4">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ${workflowColor}`}
+                    >
+                      {workflowStage}
+                    </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-xs text-gray-700 dark:text-gray-200 whitespace-nowrap">
@@ -664,48 +687,6 @@ export function ViewRecords() {
                     {record.updatedAt && record.updatedAt !== record.createdAt && (
                       <div className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap mt-0.5">
                         Updated {formatTimestamp(record.updatedAt)}
-                      </div>
-                    )}
-                  </td>
-                  <td
-                    className="px-6 py-4"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                    }}
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => openDocument(record.moaType, record.moaValue)}
-                        className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                          hasBrokenMoa
-                            ? "border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300"
-                            : "border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200"
-                        }`}
-                        title="Open MOA"
-                      >
-                        <Link2 className="h-3.5 w-3.5" />
-                        MOA
-                        {hasBrokenMoa && <AlertTriangle className="h-3.5 w-3.5" />}
-                      </button>
-                      <button
-                        onClick={() =>
-                          openDocument(record.legalOpinionType, record.legalOpinionValue)
-                        }
-                        className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                          hasBrokenLo
-                            ? "border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-300"
-                            : "border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200"
-                        }`}
-                        title="Open Legal Opinion"
-                      >
-                        <Link2 className="h-3.5 w-3.5" />
-                        LO
-                        {hasBrokenLo && <AlertTriangle className="h-3.5 w-3.5" />}
-                      </button>
-                    </div>
-                    {(hasBrokenMoa || hasBrokenLo) && (
-                      <div className="mt-2 text-center text-[11px] text-amber-700 dark:text-amber-300">
-                        Broken {hasBrokenMoa && hasBrokenLo ? "MOA/LO" : hasBrokenMoa ? "MOA" : "LO"} reference
                       </div>
                     )}
                   </td>

@@ -16,7 +16,7 @@
   },
   "build": {
     "appId": "com.moalo.tracker",
-    "productName": "MOA LO Tracker",
+    "productName": "Platform for Agreements, Tracking, and Records of Internship and Certification",
     "directories": {
       "output": "release",
       "buildResources": "build"
@@ -39,7 +39,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "MOA LO Tracker"
+      "shortcutName": "Platform for Agreements, Tracking, and Records of Internship and Certification"
     },
     "publish": {
       "provider": "github",

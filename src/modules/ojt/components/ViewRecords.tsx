@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { AlertTriangle, CheckCircle2, Filter, GraduationCap, Search, Upload } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Filter, GraduationCap, Search, Upload, ArrowUpDown } from "lucide-react";
 import { useNavigate } from "react-router";
 import { Button } from "../../../app/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../app/components/ui/dialog";
@@ -20,6 +20,8 @@ import type { OjtSettings, OjtStudentRecord } from "../types";
 
 const TEMPLATE_ACCEPT = ".png,.jpg,.jpeg,image/png,image/jpeg";
 
+type SortOption = "name-asc" | "name-desc" | "surname-asc" | "surname-desc" | "date-asc" | "date-desc" | "none";
+
 export function OjtCertificatesScreen() {
   const navigate = useNavigate();
   const templateInputRef = useRef<HTMLInputElement | null>(null);
@@ -30,8 +32,7 @@ export function OjtCertificatesScreen() {
   const [programFilter, setProgramFilter] = useState("");
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
-  const [showMissingQrDialog, setShowMissingQrDialog] = useState(false);
-  const [pendingNavigationIds, setPendingNavigationIds] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<SortOption>("none");
   const qrRecords = useMemo(() => loadOjtQrRecords(), []);
   const qrRecordMap = useMemo(() => getLatestQrRecordByKey(qrRecords), [qrRecords]);
   const programs = useMemo(() => getOjtPrograms(students), [students]);
@@ -39,6 +40,36 @@ export function OjtCertificatesScreen() {
     () => filterOjtStudents(students, { search, program: programFilter }),
     [programFilter, search, students],
   );
+
+  const sortedStudents = useMemo(() => {
+    if (sortBy === "none") return filteredStudents;
+
+    return [...filteredStudents].sort((a, b) => {
+      const aFirstName = a.firstName.toLowerCase().trim();
+      const bFirstName = b.firstName.toLowerCase().trim();
+      const aLastName = a.lastName.toLowerCase().trim();
+      const bLastName = b.lastName.toLowerCase().trim();
+      const aDate = new Date(a.createdAt || 0).getTime();
+      const bDate = new Date(b.createdAt || 0).getTime();
+
+      switch (sortBy) {
+        case "name-asc":
+          return aFirstName.localeCompare(bFirstName);
+        case "name-desc":
+          return bFirstName.localeCompare(aFirstName);
+        case "surname-asc":
+          return aLastName.localeCompare(bLastName);
+        case "surname-desc":
+          return bLastName.localeCompare(aLastName);
+        case "date-asc":
+          return aDate - bDate;
+        case "date-desc":
+          return bDate - aDate;
+        default:
+          return 0;
+      }
+    });
+  }, [filteredStudents, sortBy]);
 
   const selectedStudents = useMemo(
     () => students.filter((student) => selectedIds.includes(student.id)),
@@ -79,26 +110,39 @@ export function OjtCertificatesScreen() {
       return;
     }
 
-    const missingQrStudents = selectedStudents.filter(
-      (student) => !qrRecordMap.get(`${student.program}|||${student.school}`),
-    );
-
-    if (missingQrStudents.length) {
-      setPendingNavigationIds(selectedStudents.map((student) => student.id));
-      setShowMissingQrDialog(true);
-      return;
-    }
-
+    // Navigate directly without showing missing QR warning
     navigateToViewer(selectedStudents.map((student) => student.id));
   };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedIds(filteredStudents.map((student) => student.id));
+      setSelectedIds(sortedStudents.map((student) => student.id));
       return;
     }
 
     setSelectedIds([]);
+  };
+
+  const handleSort = (field: 'name' | 'surname' | 'date') => {
+    const ascOption = `${field}-asc` as SortOption;
+    const descOption = `${field}-desc` as SortOption;
+
+    if (sortBy === ascOption) {
+      setSortBy(descOption);
+    } else if (sortBy === descOption) {
+      setSortBy("none");
+    } else {
+      setSortBy(ascOption);
+    }
+  };
+
+  const getSortIcon = (field: 'name' | 'surname' | 'date') => {
+    const ascOption = `${field}-asc`;
+    const descOption = `${field}-desc`;
+    
+    if (sortBy === ascOption) return " ↑";
+    if (sortBy === descOption) return " ↓";
+    return "";
   };
 
   return (
@@ -129,7 +173,7 @@ export function OjtCertificatesScreen() {
           <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
             <input
               type="checkbox"
-              checked={filteredStudents.length > 0 && filteredStudents.every((student) => selectedIds.includes(student.id))}
+              checked={sortedStudents.length > 0 && sortedStudents.every((student) => selectedIds.includes(student.id))}
               onChange={(event) => handleSelectAll(event.target.checked)}
               className="h-4 w-4 rounded border-gray-300 text-violet-600"
             />
@@ -154,9 +198,36 @@ export function OjtCertificatesScreen() {
           </div>
         ) : null}
 
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => handleSort('name')}
+            className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-200 dark:hover:bg-gray-800"
+          >
+            <ArrowUpDown className="h-3.5 w-3.5" />
+            Sort by Name{getSortIcon('name')}
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSort('surname')}
+            className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-200 dark:hover:bg-gray-800"
+          >
+            <ArrowUpDown className="h-3.5 w-3.5" />
+            Sort by Surname{getSortIcon('surname')}
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSort('date')}
+            className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-200 dark:hover:bg-gray-800"
+          >
+            <ArrowUpDown className="h-3.5 w-3.5" />
+            Sort by Date Modified{getSortIcon('date')}
+          </button>
+        </div>
+
         <div className="mt-6 space-y-3">
-          {filteredStudents.length ? (
-            filteredStudents.map((student) => {
+          {sortedStudents.length ? (
+            sortedStudents.map((student) => {
               const checked = selectedIds.includes(student.id);
               const qrRecord = qrRecordMap.get(`${student.program}|||${student.school}`);
 
@@ -221,41 +292,6 @@ export function OjtCertificatesScreen() {
             <DialogTitle>Template Uploaded</DialogTitle>
             <DialogDescription>Your certificate template was uploaded successfully.</DialogDescription>
           </DialogHeader>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showMissingQrDialog} onOpenChange={setShowMissingQrDialog}>
-        <DialogContent className="max-w-2xl rounded-[28px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-600" />
-              Missing QR Codes
-            </DialogTitle>
-            <DialogDescription>
-              Some students are missing QR codes. Their certificates will still be generated, but without QR links.
-              Make sure to generate QR codes first to have QR codes for the following students:
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2 text-sm text-gray-700 dark:text-gray-200">
-            {selectedStudents
-              .filter((student) => !qrRecordMap.get(`${student.program}|||${student.school}`))
-              .map((student) => (
-                <p key={student.id}>
-                  {student.program} | {student.school} | {student.endDate ? new Date(student.endDate).getFullYear() : new Date().getFullYear()}
-                </p>
-              ))}
-          </div>
-          <div className="flex justify-end">
-            <Button
-              type="button"
-              onClick={() => {
-                setShowMissingQrDialog(false);
-                navigateToViewer(pendingNavigationIds);
-              }}
-            >
-              Got it
-            </Button>
-          </div>
         </DialogContent>
       </Dialog>
     </div>

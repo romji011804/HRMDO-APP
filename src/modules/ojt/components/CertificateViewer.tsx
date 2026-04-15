@@ -120,14 +120,6 @@ export function OjtCertificateViewer() {
   return (
     <div className="min-h-screen space-y-6 bg-[#f6edf8] p-6 print:bg-white">
       <div className="flex items-center gap-3 text-gray-900 print:hidden">
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-white"
-          aria-label="Go back"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
         <h1 className="text-2xl font-medium">View Certificate</h1>
       </div>
 

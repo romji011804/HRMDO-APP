@@ -53,7 +53,12 @@ async function getStoredFileDataUrl(key?: string) {
 }
 
 async function getBundledTemplateDataUrl() {
-  const response = await fetch("/templates/ojt-certificate-template.jpg");
+  // Use relative path for production Electron builds
+  const templatePath = import.meta.env.DEV 
+    ? "/templates/ojt-certificate-template.jpg"
+    : "./templates/ojt-certificate-template.jpg";
+  
+  const response = await fetch(templatePath);
   if (!response.ok) throw new Error("Unable to load the bundled certificate template.");
   return blobToDataUrl(await response.blob());
 }

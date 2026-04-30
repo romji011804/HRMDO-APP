@@ -11,6 +11,8 @@ import {
   Users,
   Info,
   Upload,
+  Lock,
+  LockOpen,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -28,7 +30,7 @@ export function Sidebar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
-  const { isCollapsed, hideSidebar } = useSidebar();
+  const { isCollapsed, isLocked, hideSidebar, toggleLock } = useSidebar();
 
   useEffect(() => {
     setMounted(true);
@@ -74,9 +76,27 @@ export function Sidebar() {
     >
       <div className={`flex flex-col h-full transition-opacity duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
         <div className="p-7 pb-6 border-b border-gray-100 dark:border-gray-800 shrink-0">
-          <h1 className="text-lg font-semibold leading-snug text-gray-900 dark:text-white">
-            Platform for Agreements, Tr acking, and Records of Internship and Certification
-          </h1>
+          <div className="flex items-start justify-between gap-2">
+            <h1 className="text-lg font-semibold leading-snug text-gray-900 dark:text-white">
+              Platform for Agreements, Tr acking, and Records of Internship and Certification
+            </h1>
+            <button
+              onClick={toggleLock}
+              title={isLocked ? "Unlock sidebar" : "Lock sidebar open"}
+              className={`mt-0.5 shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 ease-in-out hover:scale-110 active:scale-95 ${
+                isLocked
+                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400 shadow-sm"
+                  : "text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-600 dark:hover:text-gray-300"
+              }`}
+            >
+              <span
+                className="transition-transform duration-300 ease-in-out"
+                style={{ transform: isLocked ? "rotate(-15deg) scale(1.1)" : "rotate(0deg) scale(1)" }}
+              >
+                {isLocked ? <Lock className="w-4 h-4" /> : <LockOpen className="w-4 h-4" />}
+              </span>
+            </button>
+          </div>
         </div>
 
         <nav className="flex-1 space-y-5 px-4 py-5 overflow-y-auto">

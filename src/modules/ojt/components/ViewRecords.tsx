@@ -23,7 +23,7 @@ export function OjtCertificatesScreen() {
   const [search, setSearch] = useState("");
   const [programFilter, setProgramFilter] = useState("");
   const [showFilterPanel, setShowFilterPanel] = useState(false);
-  const [sortBy, setSortBy] = useState<SortOption>("none");
+  const [sortBy, setSortBy] = useState<SortOption>("date-desc");
   const qrRecords = useMemo(() => loadOjtQrRecords(), []);
   const qrRecordMap = useMemo(() => getLatestQrRecordByKey(qrRecords), [qrRecords]);
   const programs = useMemo(() => getOjtPrograms(students), [students]);

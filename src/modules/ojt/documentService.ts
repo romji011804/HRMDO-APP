@@ -19,11 +19,13 @@ interface CertificateLayoutMetrics {
   nameFontSize: number;
   schoolFontSize: number;
   hoursFontSize: number;
+  completionFontSize: number;
   detailsFontSize: number;
   issuedFontSize: number;
   nameWidth: number;
   schoolWidth: number;
   hoursWidth: number;
+  completionWidth: number;
   detailsWidth: number;
   issuedWidth: number;
 }
@@ -187,17 +189,34 @@ function certificateLayoutMetrics(preview: ResolvedCertificatePreview, completio
   const nameLength = preview.studentName.length;
   const schoolLength = preview.subtitle.length;
   const hoursLength = preview.hoursLabel.length;
+  const completionLength = completionLine.length;
   const detailsLength = completionLine.length;
   const issuedLength = preview.issuedLine.length;
+
+  // Auto-fit font size for hours line only: scale down so it stays on one line.
+  // Times New Roman bold uppercase: ~0.62 width-to-height ratio per character.
+  const HOURS_CONTAINER_WIDTH = 1300;
+  const HOURS_CHAR_RATIO = 0.62;
+  const HOURS_MAX_FONT = 34;
+  const HOURS_MIN_FONT = 18;
+  const hoursFontSizeRaw = Math.floor(HOURS_CONTAINER_WIDTH / (hoursLength * HOURS_CHAR_RATIO));
+  const hoursFontSize = Math.min(HOURS_MAX_FONT, Math.max(HOURS_MIN_FONT, hoursFontSizeRaw));
+
+  // Completion line (date + office) — fixed sizing, never auto-resized
+  const completionFontSize = completionLength <= 85 ? 26 : completionLength <= 130 ? 22 : 30;
+  const completionWidth = completionLength <= 85 ? 1180 : completionLength <= 130 ? 1240 : 1290;
+
   return {
     nameFontSize: nameLength <= 20 ? 90 : nameLength <= 28 ? 78 : nameLength <= 36 ? 66 : nameLength <= 44 ? 58 : nameLength <= 52 ? 50 : nameLength <= 60 ? 44 : 38,
     schoolFontSize: schoolLength <= 45 ? 31 : schoolLength <= 75 ? 26 : 22,
-    hoursFontSize: hoursLength <= 56 ? 34 : hoursLength <= 92 ? 29 : 25,
+    hoursFontSize,
+    completionFontSize,
     detailsFontSize: detailsLength <= 85 ? 26 : detailsLength <= 130 ? 22 : 19,
     issuedFontSize: issuedLength <= 42 ? 30 : issuedLength <= 60 ? 26 : 22,
     nameWidth: nameLength <= 20 ? 1280 : nameLength <= 28 ? 1310 : nameLength <= 36 ? 1340 : nameLength <= 44 ? 1360 : nameLength <= 52 ? 1380 : 1400,
     schoolWidth: schoolLength <= 45 ? 1120 : schoolLength <= 75 ? 1180 : 1240,
-    hoursWidth: hoursLength <= 56 ? 1220 : hoursLength <= 92 ? 1280 : 1320,
+    hoursWidth: HOURS_CONTAINER_WIDTH,
+    completionWidth,
     detailsWidth: detailsLength <= 85 ? 1180 : detailsLength <= 130 ? 1240 : 1290,
     issuedWidth: issuedLength <= 42 ? 980 : issuedLength <= 60 ? 1040 : 1100,
   };
@@ -226,7 +245,8 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
     // TOP certificate positions
     const nameY = offsetY + 420;
     const schoolY = offsetY + 540;
-    const hoursY = offsetY + 650;
+    const hoursY = offsetY + 640;
+    const completionY = hoursY + 33;   // fixed gap below hours line
     const issuedY = offsetY + 800;
     const qrY = offsetY + 850;
     
@@ -242,10 +262,14 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
             (${escapeHtml(preview.subtitle)})
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((sheetW - 1300) / 2)}" y="${hoursY}" width="1300" height="150">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;line-height:1.25;text-align:center;color:rgba(17,17,17,0.92);">
-            <div style="font-weight:700;text-transform:uppercase;color:#111;margin:0 0 6px 0;padding:0;line-height:1.2;">${escapeHtml(preview.hoursLabel)}</div>
-            <div style="font-weight:400;margin:0;padding:0;line-height:1.3;">${escapeHtml(completionLine)}</div>
+      <foreignObject x="${Math.round((sheetW - metrics.hoursWidth) / 2)}" y="${hoursY}" width="${metrics.hoursWidth}" height="44">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;font-weight:700;text-transform:uppercase;line-height:1.2;text-align:center;color:#111;white-space:nowrap;overflow:hidden;">
+            ${escapeHtml(preview.hoursLabel)}
+        </div>
+      </foreignObject>
+      <foreignObject x="${Math.round((sheetW - metrics.completionWidth) / 2)}" y="${completionY}" width="${metrics.completionWidth}" height="100">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.completionFontSize}px;font-weight:400;line-height:1.3;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
+            ${escapeHtml(completionLine)}
         </div>
       </foreignObject>
       <foreignObject x="${Math.round((sheetW - metrics.issuedWidth) / 2)}" y="${issuedY}" width="${metrics.issuedWidth}" height="70">
@@ -263,7 +287,8 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
     // BOTTOM certificate positions
     const nameY = offsetY + 400;
     const schoolY = offsetY + 520;
-    const hoursY = offsetY + 615;
+    const hoursY = offsetY + 620;
+    const completionY = hoursY + 33;   // fixed gap below hours line
     const issuedY = offsetY + 800;
     const qrY = offsetY + 850;
     
@@ -279,10 +304,14 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
             (${escapeHtml(preview.subtitle)})
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((sheetW - 1300) / 2)}" y="${hoursY}" width="1300" height="150">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;line-height:1.25;text-align:center;color:rgba(17,17,17,0.92);">
-            <div style="font-weight:700;text-transform:uppercase;color:#111;margin:0 0 6px 0;padding:0;line-height:1.2;">${escapeHtml(preview.hoursLabel)}</div>
-            <div style="font-weight:400;margin:0;padding:0;line-height:1.3;">${escapeHtml(completionLine)}</div>
+      <foreignObject x="${Math.round((sheetW - metrics.hoursWidth) / 2)}" y="${hoursY}" width="${metrics.hoursWidth}" height="44">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;font-weight:700;text-transform:uppercase;line-height:1.2;text-align:center;color:#111;white-space:nowrap;overflow:hidden;">
+            ${escapeHtml(preview.hoursLabel)}
+        </div>
+      </foreignObject>
+      <foreignObject x="${Math.round((sheetW - metrics.completionWidth) / 2)}" y="${completionY}" width="${metrics.completionWidth}" height="100">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.completionFontSize}px;font-weight:400;line-height:1.3;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
+            ${escapeHtml(completionLine)}
         </div>
       </foreignObject>
       <foreignObject x="${Math.round((sheetW - metrics.issuedWidth) / 2)}" y="${issuedY}" width="${metrics.issuedWidth}" height="70">
@@ -295,7 +324,7 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
 
   const topOverlays = topSlotOverlays(top, 0);
   const bottomOverlays = bottom ? bottomSlotOverlays(bottom, slotH) : "";
-  const separator = bottom ? `<line x1="0" y1="${slotH}" x2="${sheetW}" y2="${slotH}" stroke="#e0e0e0" stroke-width="2" stroke-dasharray="10,5" />` : "";
+  const separator = bottom ? `<line x1="0" y1="${slotH}" x2="${sheetW}" y2="${slotH}" stroke="#555555" stroke-width="3" stroke-dasharray="20,10" />` : "";
 
   return `
     <svg xmlns="http://www.w3.org/2000/svg" width="8.5in" height="11in" viewBox="0 0 ${sheetW} ${sheetH}" preserveAspectRatio="xMidYMid meet">
@@ -320,6 +349,7 @@ export function buildCertificateSvg(preview: ResolvedCertificatePreview) {
   const nameY = 400;      // Below "is awarded to"
   const schoolY = 395;    // Tight below name
   const hoursY = 500;     // Below "for having successfully completed"
+  const completionY = hoursY + 33;  // fixed gap below hours line
   const issuedY = 660;    // Below message block
   const qrY = 750;        // QR code position
   
@@ -338,10 +368,14 @@ export function buildCertificateSvg(preview: ResolvedCertificatePreview) {
             (${escapeHtml(preview.subtitle)})
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((certW - 1300) / 2)}" y="${hoursY}" width="1300" height="150">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;line-height:1.25;text-align:center;color:rgba(17,17,17,0.92);">
-            <div style="font-weight:700;text-transform:uppercase;color:#111;margin:0 0 6px 0;padding:0;line-height:1.2;">${escapeHtml(preview.hoursLabel)}</div>
-            <div style="font-weight:400;margin:0;padding:0;line-height:1.3;">${escapeHtml(completionLine)}</div>
+      <foreignObject x="${Math.round((certW - metrics.hoursWidth) / 2)}" y="${hoursY}" width="${metrics.hoursWidth}" height="44">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.hoursFontSize}px;font-weight:700;text-transform:uppercase;line-height:1.2;text-align:center;color:#111;white-space:nowrap;overflow:hidden;">
+            ${escapeHtml(preview.hoursLabel)}
+        </div>
+      </foreignObject>
+      <foreignObject x="${Math.round((certW - metrics.completionWidth) / 2)}" y="${completionY}" width="${metrics.completionWidth}" height="100">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.completionFontSize}px;font-weight:400;line-height:1.3;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
+            ${escapeHtml(completionLine)}
         </div>
       </foreignObject>
       <foreignObject x="${Math.round((certW - metrics.issuedWidth) / 2)}" y="${issuedY}" width="${metrics.issuedWidth}" height="70">

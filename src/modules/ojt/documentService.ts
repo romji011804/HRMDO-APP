@@ -91,6 +91,42 @@ function dayWithSuffix(day: number) {
   return `${day}th`;
 }
 
+function numberToWords(n: number): string {
+  if (n === 0) return "ZERO";
+
+  const ones = ["", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE",
+    "TEN", "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN",
+    "SEVENTEEN", "EIGHTEEN", "NINETEEN"];
+  const tens = ["", "", "TWENTY", "THIRTY", "FORTY", "FIFTY", "SIXTY", "SEVENTY", "EIGHTY", "NINETY"];
+
+  function belowThousand(num: number): string {
+    if (num === 0) return "";
+    if (num < 20) return ones[num];
+    if (num < 100) {
+      const t = tens[Math.floor(num / 10)];
+      const o = ones[num % 10];
+      return o ? `${t} ${o}` : t;
+    }
+    const h = ones[Math.floor(num / 100)];
+    const rest = belowThousand(num % 100);
+    return rest ? `${h} HUNDRED ${rest}` : `${h} HUNDRED`;
+  }
+
+  const parts: string[] = [];
+  if (n >= 1000) {
+    parts.push(`${belowThousand(Math.floor(n / 1000))} THOUSAND`);
+    n = n % 1000;
+  }
+  if (n > 0) parts.push(belowThousand(n));
+
+  return parts.join(" ");
+}
+
+function formatHoursLabel(hours: number): string {
+  const words = numberToWords(hours);
+  return `${words} (${hours}) HOURS ON THE JOB AND WORK IMMERSION TRAINING`;
+}
+
 function certificateIssuedLine() {
   const parsed = new Date();
   if (Number.isNaN(parsed.getTime())) return "";
@@ -116,7 +152,7 @@ export async function resolveCertificatePreviews({ students, qrRecords, settings
       studentId: student.id,
       studentName: formatCertificateName(student),
       subtitle: student.school,
-      hoursLabel: `${formattedHours} HOURS ON THE JOB AND WORK IMMERSION TRAINING`,
+      hoursLabel: formatHoursLabel(Number.isFinite(numericHours) && numericHours > 0 ? Math.round(numericHours) : 0),
       dateRangeLabel: hasStartAndEndDate ? `from ${formatLongDate(student.startDate)} to ${formatLongDate(student.endDate)}` : "",
       officeLine: `at the ${student.office?.trim() || "Provincial Government Office"}${student.address?.trim() ? `, ${student.address.trim()}` : ""}`,
       issuedLine: certificateIssuedLine(),

@@ -1,8 +1,7 @@
-import { useMemo, useRef, useState } from "react";
-import { AlertTriangle, CheckCircle2, Filter, GraduationCap, Search, Upload, ArrowUpDown } from "lucide-react";
+import { useMemo, useState } from "react";
+import { CheckCircle2, Filter, GraduationCap, Search, ArrowUpDown } from "lucide-react";
 import { useNavigate } from "react-router";
 import { Button } from "../../../app/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../app/components/ui/dialog";
 import { PageHeader } from "../../../shared/components/PageHeader";
 import {
   filterOjtStudents,
@@ -10,28 +9,20 @@ import {
   getOjtPrograms,
   getStudentDisplayName,
   loadOjtQrRecords,
-  loadOjtSettings,
   loadOjtStudents,
   saveLastViewedCertificateIds,
-  saveOjtSettings,
 } from "../storage";
-import { saveFileBlob } from "../../../shared/storage/fileStorageService";
-import type { OjtSettings, OjtStudentRecord } from "../types";
-
-const TEMPLATE_ACCEPT = ".png,.jpg,.jpeg,image/png,image/jpeg";
+import type { OjtStudentRecord } from "../types";
 
 type SortOption = "name-asc" | "name-desc" | "surname-asc" | "surname-desc" | "date-asc" | "date-desc" | "none";
 
 export function OjtCertificatesScreen() {
   const navigate = useNavigate();
-  const templateInputRef = useRef<HTMLInputElement | null>(null);
   const [students] = useState<OjtStudentRecord[]>(() => loadOjtStudents());
-  const [settings, setSettings] = useState<OjtSettings>(() => loadOjtSettings());
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [programFilter, setProgramFilter] = useState("");
   const [showFilterPanel, setShowFilterPanel] = useState(false);
-  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("none");
   const qrRecords = useMemo(() => loadOjtQrRecords(), []);
   const qrRecordMap = useMemo(() => getLatestQrRecordByKey(qrRecords), [qrRecords]);
@@ -80,22 +71,6 @@ export function OjtCertificatesScreen() {
     setSelectedIds((current) =>
       current.includes(studentId) ? current.filter((id) => id !== studentId) : [...current, studentId],
     );
-  };
-
-  const handleTemplateUpload = async (file?: File) => {
-    if (!file) {
-      return;
-    }
-
-    const templateFile = await saveFileBlob(file);
-    const nextSettings = {
-      ...settings,
-      templateFile,
-      templateFileName: file.name,
-    };
-    saveOjtSettings(nextSettings);
-    setSettings(nextSettings);
-    setShowTemplateDialog(true);
   };
 
   const navigateToViewer = (ids: string[]) => {
@@ -149,7 +124,13 @@ export function OjtCertificatesScreen() {
     <div className="space-y-6 p-8">
       <PageHeader
         title="Generate Certificate"
-        description="Search students, select who to include, upload the certificate template, then generate the certificate view."
+        description="Search students, select who to include, then generate the certificate view."
+        action={
+          <Button type="button" onClick={handleGenerate} disabled={!selectedStudents.length}>
+            <CheckCircle2 className="mr-2 h-4 w-4" />
+            Generate Certificate
+          </Button>
+        }
       />
       <div className="rounded-[28px] border border-gray-200 bg-[#fbf3ff] p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
         <div className="flex items-center justify-between gap-4">
@@ -266,34 +247,7 @@ export function OjtCertificatesScreen() {
             </div>
           )}
         </div>
-
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <input
-            ref={templateInputRef}
-            type="file"
-            accept={TEMPLATE_ACCEPT}
-            className="hidden"
-            onChange={(event) => void handleTemplateUpload(event.target.files?.[0])}
-          />
-          <Button type="button" className="self-end" variant="outline" onClick={() => templateInputRef.current?.click()}>
-            <Upload className="mr-2 h-4 w-4" />
-            {settings.templateFileName ? "Replace Template" : "Upload Template"}
-          </Button>
-          <Button type="button" className="self-end" onClick={handleGenerate} disabled={!selectedStudents.length}>
-            <CheckCircle2 className="mr-2 h-4 w-4" />
-            Generate Certificate
-          </Button>
-        </div>
       </div>
-
-      <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
-        <DialogContent className="max-w-sm rounded-[28px]">
-          <DialogHeader>
-            <DialogTitle>Template Uploaded</DialogTitle>
-            <DialogDescription>Your certificate template was uploaded successfully.</DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

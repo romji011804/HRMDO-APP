@@ -190,7 +190,7 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
     // TOP certificate positions
     const nameY = offsetY + 420;
     const schoolY = offsetY + 540;
-    const hoursY = offsetY + 635;
+    const hoursY = offsetY + 650;
     const issuedY = offsetY + 800;
     const qrY = offsetY + 850;
     

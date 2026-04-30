@@ -1,6 +1,7 @@
-import { ArrowLeft, Printer } from "lucide-react";
+import { Printer } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
+import { useSidebar } from "../../../app/contexts/SidebarContext";
 import {
   buildCertificateSvg,
   buildSheetSvg,
@@ -53,6 +54,12 @@ export function OjtCertificateViewer() {
   const location = useLocation();
   const state = (location.state as ViewerState | null) ?? {};
   const [previews, setPreviews] = useState<ResolvedCertificatePreview[]>([]);
+  const { showSidebar } = useSidebar();
+
+  // Auto-show sidebar when entering this view
+  useEffect(() => {
+    showSidebar();
+  }, [showSidebar]);
 
   useEffect(() => {
     const selectedIds = state.selectedIds?.length ? state.selectedIds : loadLastViewedCertificateIds();

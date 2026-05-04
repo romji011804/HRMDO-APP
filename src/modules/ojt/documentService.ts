@@ -93,42 +93,6 @@ function dayWithSuffix(day: number) {
   return `${day}th`;
 }
 
-function numberToWords(n: number): string {
-  if (n === 0) return "ZERO";
-
-  const ones = ["", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE",
-    "TEN", "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN",
-    "SEVENTEEN", "EIGHTEEN", "NINETEEN"];
-  const tens = ["", "", "TWENTY", "THIRTY", "FORTY", "FIFTY", "SIXTY", "SEVENTY", "EIGHTY", "NINETY"];
-
-  function belowThousand(num: number): string {
-    if (num === 0) return "";
-    if (num < 20) return ones[num];
-    if (num < 100) {
-      const t = tens[Math.floor(num / 10)];
-      const o = ones[num % 10];
-      return o ? `${t} ${o}` : t;
-    }
-    const h = ones[Math.floor(num / 100)];
-    const rest = belowThousand(num % 100);
-    return rest ? `${h} HUNDRED ${rest}` : `${h} HUNDRED`;
-  }
-
-  const parts: string[] = [];
-  if (n >= 1000) {
-    parts.push(`${belowThousand(Math.floor(n / 1000))} THOUSAND`);
-    n = n % 1000;
-  }
-  if (n > 0) parts.push(belowThousand(n));
-
-  return parts.join(" ");
-}
-
-function formatHoursLabel(hours: number): string {
-  const words = numberToWords(hours);
-  return `${words} (${hours}) HOURS ON THE JOB AND WORK IMMERSION TRAINING`;
-}
-
 function certificateIssuedLine() {
   const parsed = new Date();
   if (Number.isNaN(parsed.getTime())) return "";
@@ -154,7 +118,7 @@ export async function resolveCertificatePreviews({ students, qrRecords, settings
       studentId: student.id,
       studentName: formatCertificateName(student),
       subtitle: student.school,
-      hoursLabel: formatHoursLabel(Number.isFinite(numericHours) && numericHours > 0 ? Math.round(numericHours) : 0),
+      hoursLabel: `${formattedHours} HOURS ON THE JOB AND WORK IMMERSION TRAINING`,
       dateRangeLabel: hasStartAndEndDate ? `from ${formatLongDate(student.startDate)} to ${formatLongDate(student.endDate)}` : "",
       officeLine: `at the ${student.office?.trim() || "Provincial Government Office"}${student.address?.trim() ? `, ${student.address.trim()}` : ""}`,
       issuedLine: certificateIssuedLine(),
@@ -193,29 +157,20 @@ function certificateLayoutMetrics(preview: ResolvedCertificatePreview, completio
   const detailsLength = completionLine.length;
   const issuedLength = preview.issuedLine.length;
 
-  // Auto-fit font size for hours line only: scale down so it stays on one line.
-  // Times New Roman bold uppercase: ~0.62 width-to-height ratio per character.
-  const HOURS_CONTAINER_WIDTH = 1300;
-  const HOURS_CHAR_RATIO = 0.62;
-  const HOURS_MAX_FONT = 34;
-  const HOURS_MIN_FONT = 18;
-  const hoursFontSizeRaw = Math.floor(HOURS_CONTAINER_WIDTH / (hoursLength * HOURS_CHAR_RATIO));
-  const hoursFontSize = Math.min(HOURS_MAX_FONT, Math.max(HOURS_MIN_FONT, hoursFontSizeRaw));
-
-  // Completion line (date + office) — fixed sizing, never auto-resized
-  const completionFontSize = completionLength <= 85 ? 26 : completionLength <= 130 ? 22 : 30;
+  // Completion line — fixed, independent font size (never shares with hours)
+  const completionFontSize = 30;
   const completionWidth = completionLength <= 85 ? 1180 : completionLength <= 130 ? 1240 : 1290;
 
   return {
     nameFontSize: nameLength <= 20 ? 90 : nameLength <= 28 ? 78 : nameLength <= 36 ? 66 : nameLength <= 44 ? 58 : nameLength <= 52 ? 50 : nameLength <= 60 ? 44 : 38,
     schoolFontSize: schoolLength <= 45 ? 31 : schoolLength <= 75 ? 26 : 22,
-    hoursFontSize,
+    hoursFontSize: hoursLength <= 56 ? 34 : hoursLength <= 92 ? 29 : 25,
     completionFontSize,
     detailsFontSize: detailsLength <= 85 ? 26 : detailsLength <= 130 ? 22 : 19,
-    issuedFontSize: issuedLength <= 42 ? 30 : issuedLength <= 60 ? 26 : 22,
+    issuedFontSize: 30,
     nameWidth: nameLength <= 20 ? 1280 : nameLength <= 28 ? 1310 : nameLength <= 36 ? 1340 : nameLength <= 44 ? 1360 : nameLength <= 52 ? 1380 : 1400,
     schoolWidth: schoolLength <= 45 ? 1120 : schoolLength <= 75 ? 1180 : 1240,
-    hoursWidth: HOURS_CONTAINER_WIDTH,
+    hoursWidth: hoursLength <= 56 ? 1220 : hoursLength <= 92 ? 1280 : 1320,
     completionWidth,
     detailsWidth: detailsLength <= 85 ? 1180 : detailsLength <= 130 ? 1240 : 1290,
     issuedWidth: issuedLength <= 42 ? 980 : issuedLength <= 60 ? 1040 : 1100,
@@ -246,7 +201,7 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
     const nameY = offsetY + 420;
     const schoolY = offsetY + 540;
     const hoursY = offsetY + 640;
-    const completionY = hoursY + 33;   // fixed gap below hours line
+    const completionY = hoursY + 35;
     const issuedY = offsetY + 800;
     const qrY = offsetY + 850;
     
@@ -267,7 +222,7 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
             ${escapeHtml(preview.hoursLabel)}
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((sheetW - metrics.completionWidth) / 2)}" y="${completionY}" width="${metrics.completionWidth}" height="100">
+      <foreignObject x="${Math.round((sheetW - metrics.completionWidth) / 2)}" y="${completionY}" width="${metrics.completionWidth}" height="110">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.completionFontSize}px;font-weight:400;line-height:1.3;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             ${escapeHtml(completionLine)}
         </div>
@@ -288,7 +243,7 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
     const nameY = offsetY + 400;
     const schoolY = offsetY + 520;
     const hoursY = offsetY + 620;
-    const completionY = hoursY + 33;   // fixed gap below hours line
+    const completionY = hoursY + 35;
     const issuedY = offsetY + 800;
     const qrY = offsetY + 850;
     
@@ -309,7 +264,7 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
             ${escapeHtml(preview.hoursLabel)}
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((sheetW - metrics.completionWidth) / 2)}" y="${completionY}" width="${metrics.completionWidth}" height="100">
+      <foreignObject x="${Math.round((sheetW - metrics.completionWidth) / 2)}" y="${completionY}" width="${metrics.completionWidth}" height="110">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.completionFontSize}px;font-weight:400;line-height:1.3;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             ${escapeHtml(completionLine)}
         </div>
@@ -324,7 +279,7 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
 
   const topOverlays = topSlotOverlays(top, 0);
   const bottomOverlays = bottom ? bottomSlotOverlays(bottom, slotH) : "";
-  const separator = bottom ? `<line x1="0" y1="${slotH}" x2="${sheetW}" y2="${slotH}" stroke="#555555" stroke-width="3" stroke-dasharray="20,10" />` : "";
+  const separator = bottom ? `<line x1="0" y1="${slotH}" x2="${sheetW}" y2="${slotH}" stroke="#e0e0e0" stroke-width="2" stroke-dasharray="10,5" />` : "";
 
   return `
     <svg xmlns="http://www.w3.org/2000/svg" width="8.5in" height="11in" viewBox="0 0 ${sheetW} ${sheetH}" preserveAspectRatio="xMidYMid meet">
@@ -349,7 +304,7 @@ export function buildCertificateSvg(preview: ResolvedCertificatePreview) {
   const nameY = 400;      // Below "is awarded to"
   const schoolY = 395;    // Tight below name
   const hoursY = 500;     // Below "for having successfully completed"
-  const completionY = hoursY + 33;  // fixed gap below hours line
+  const completionY = hoursY + 45;
   const issuedY = 660;    // Below message block
   const qrY = 750;        // QR code position
   
@@ -373,7 +328,7 @@ export function buildCertificateSvg(preview: ResolvedCertificatePreview) {
             ${escapeHtml(preview.hoursLabel)}
         </div>
       </foreignObject>
-      <foreignObject x="${Math.round((certW - metrics.completionWidth) / 2)}" y="${completionY}" width="${metrics.completionWidth}" height="100">
+      <foreignObject x="${Math.round((certW - metrics.completionWidth) / 2)}" y="${completionY}" width="${metrics.completionWidth}" height="110">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.completionFontSize}px;font-weight:400;line-height:1.3;text-align:center;color:rgba(17,17,17,0.92);word-break:break-word;">
             ${escapeHtml(completionLine)}
         </div>

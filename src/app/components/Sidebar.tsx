@@ -78,7 +78,7 @@ export function Sidebar() {
         <div className="p-7 pb-6 border-b border-gray-100 dark:border-gray-800 shrink-0">
           <div className="flex items-start justify-between gap-2">
             <h1 className="text-lg font-semibold leading-snug text-gray-900 dark:text-white">
-              Platform for Agreements, Tr acking, and Records of Internship and Certification
+              Platform for Agreements, Tracking, and Records of Internship and Certification
             </h1>
             <button
               onClick={toggleLock}

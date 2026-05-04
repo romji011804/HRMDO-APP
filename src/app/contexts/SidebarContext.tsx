@@ -40,7 +40,6 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
       try {
         localStorage.setItem("sidebar-locked", String(next));
       } catch {}
-      // When locking, also ensure sidebar is visible
       if (next) setIsCollapsed(false);
       return next;
     });

@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type React from "react";
 import { Pencil, Plus, Search, Trash2, UserPlus, Pin, PinOff, AlertTriangle } from "lucide-react";
 import { useLocation } from "react-router";
 import { Button } from "../../../app/components/ui/button";
@@ -82,6 +83,115 @@ function toFormState(student?: OjtStudentRecord): StudentFormState {
   };
 }
 
+const DEFAULT_PANEL_POS = () => ({ x: Math.max(0, (window.innerWidth - 700) / 2), y: Math.max(0, (window.innerHeight - 520) / 2) });
+const DEFAULT_PANEL_SIZE = { w: 700, h: 520 };
+
+// Resizable + draggable floating panel (no exit/minimize/restore)
+function ResizableDraggablePanel({
+  title,
+  description,
+  onClose,
+  pos,
+  size,
+  setPos,
+  setSize,
+  onReset,
+  children,
+}: {
+  title: string;
+  description?: string;
+  onClose: () => void;
+  pos: { x: number; y: number };
+  size: { w: number; h: number };
+  setPos: (p: { x: number; y: number }) => void;
+  setSize: (s: { w: number; h: number }) => void;
+  onReset: () => void;
+  children: React.ReactNode;
+}) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const dragState = useRef({ dragging: false, startX: 0, startY: 0, origX: 0, origY: 0 });
+  const resizeState = useRef({ resizing: false, startX: 0, startY: 0, origW: 0, origH: 0 });
+
+  // Drag — title bar
+  const onDragMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    dragState.current = { dragging: true, startX: e.clientX, startY: e.clientY, origX: pos.x, origY: pos.y };
+    const onMove = (ev: MouseEvent) => {
+      if (!dragState.current.dragging) return;
+      setPos({
+        x: Math.max(0, dragState.current.origX + ev.clientX - dragState.current.startX),
+        y: Math.max(0, dragState.current.origY + ev.clientY - dragState.current.startY),
+      });
+    };
+    const onUp = () => { dragState.current.dragging = false; window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }, [pos, setPos]);
+
+  // Resize — bottom-right handle
+  const onResizeMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    resizeState.current = { resizing: true, startX: e.clientX, startY: e.clientY, origW: size.w, origH: size.h };
+    const onMove = (ev: MouseEvent) => {
+      if (!resizeState.current.resizing) return;
+      setSize({
+        w: Math.max(400, resizeState.current.origW + ev.clientX - resizeState.current.startX),
+        h: Math.max(300, resizeState.current.origH + ev.clientY - resizeState.current.startY),
+      });
+    };
+    const onUp = () => { resizeState.current.resizing = false; window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }, [size, setSize]);
+
+  return (
+    <div className="fixed inset-0 z-50 pointer-events-none">
+      <div
+        ref={panelRef}
+        className="pointer-events-auto absolute bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden"
+        style={{ left: pos.x, top: pos.y, width: size.w, height: size.h }}
+      >
+        {/* Title bar — drag handle */}
+        <div
+          onMouseDown={onDragMouseDown}
+          className="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/60 cursor-grab active:cursor-grabbing select-none shrink-0"
+        >
+          <div>
+            <p className="font-semibold text-gray-900 dark:text-white text-base">{title}</p>
+            {description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{description}</p>}
+          </div>
+          <button
+            type="button"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={onReset}
+            title="Reset position and size"
+            className="ml-3 shrink-0 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 border border-gray-200 dark:border-gray-700 rounded px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            Reset
+          </button>
+        </div>
+
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto p-5">
+          {children}
+        </div>
+
+        {/* Resize handle — bottom-right corner */}
+        <div
+          onMouseDown={onResizeMouseDown}
+          className="absolute bottom-0 right-0 w-5 h-5 cursor-se-resize"
+          style={{ background: "transparent" }}
+        >
+          <svg viewBox="0 0 10 10" className="w-4 h-4 absolute bottom-1 right-1 text-gray-400">
+            <path d="M9 1L1 9M9 5L5 9M9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function OjtStudentsScreen() {
   const location = useLocation();
   const [students, setStudents] = useState<OjtStudentRecord[]>(() => loadOjtStudents());
@@ -97,7 +207,9 @@ export function OjtStudentsScreen() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [pinnedIds, setPinnedIds] = useState<string[]>([]);
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
-  const [sortBy, setSortBy] = useState<SortOption>("modified-desc"); // Default: Date Modified Descending
+  const [sortBy, setSortBy] = useState<SortOption>("modified-desc");
+  const [panelPos, setPanelPos] = useState(() => DEFAULT_PANEL_POS());
+  const [panelSize, setPanelSize] = useState(DEFAULT_PANEL_SIZE);
 
   // Initialize autocomplete history from existing records
   useEffect(() => {
@@ -546,24 +658,30 @@ export function OjtStudentsScreen() {
         </div>
       </div>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>{editingStudentId ? "Edit Student" : "Add Student"}</DialogTitle>
-            <DialogDescription>Capture the same student details used by the video workflow before generating certificates.</DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      {/* Resizable draggable floating panel — no exit/minimize/restore buttons */}
+      {dialogOpen && (
+        <ResizableDraggablePanel
+          title={editingStudentId ? "Edit Student" : "Add Student"}
+          description="Capture the same student details used by the video workflow before generating certificates."
+          onClose={() => setDialogOpen(false)}
+          pos={panelPos}
+          size={panelSize}
+          setPos={setPanelPos}
+          setSize={setPanelSize}
+          onReset={() => { setPanelPos(DEFAULT_PANEL_POS()); setPanelSize(DEFAULT_PANEL_SIZE); }}
+        >
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="ojt-first-name">First name</Label>
-              <Input id="ojt-first-name" value={form.firstName} onChange={(event) => setForm((current) => ({ ...current, firstName: event.target.value }))} />
+              <Label htmlFor="ojt-first-name" className="text-sm font-medium">First name</Label>
+              <Input id="ojt-first-name" className="h-11 text-base" value={form.firstName} onChange={(event) => setForm((current) => ({ ...current, firstName: event.target.value }))} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="ojt-middle-initial">Middle initial</Label>
-              <Input id="ojt-middle-initial" value={form.middleInitial} onChange={(event) => setForm((current) => ({ ...current, middleInitial: event.target.value }))} />
+              <Label htmlFor="ojt-middle-initial" className="text-sm font-medium">Middle initial</Label>
+              <Input id="ojt-middle-initial" className="h-11 text-base" value={form.middleInitial} onChange={(event) => setForm((current) => ({ ...current, middleInitial: event.target.value }))} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="ojt-last-name">Last name</Label>
-              <Input id="ojt-last-name" value={form.lastName} onChange={(event) => setForm((current) => ({ ...current, lastName: event.target.value }))} />
+              <Label htmlFor="ojt-last-name" className="text-sm font-medium">Last name</Label>
+              <Input id="ojt-last-name" className="h-11 text-base" value={form.lastName} onChange={(event) => setForm((current) => ({ ...current, lastName: event.target.value }))} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="ojt-program">Program</Label>
@@ -636,7 +754,7 @@ export function OjtStudentsScreen() {
               />
             </div>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between pt-2">
             <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
@@ -657,8 +775,8 @@ export function OjtStudentsScreen() {
               </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </ResizableDraggablePanel>
+      )}
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="max-w-md rounded-[28px]">

@@ -93,6 +93,37 @@ function dayWithSuffix(day: number) {
   return `${day}th`;
 }
 
+function numberToWords(n: number): string {
+  if (n === 0) return "ZERO";
+  const ones = ["", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE",
+    "TEN", "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN",
+    "SEVENTEEN", "EIGHTEEN", "NINETEEN"];
+  const tens = ["", "", "TWENTY", "THIRTY", "FORTY", "FIFTY", "SIXTY", "SEVENTY", "EIGHTY", "NINETY"];
+  function belowThousand(num: number): string {
+    if (num === 0) return "";
+    if (num < 20) return ones[num];
+    if (num < 100) {
+      const t = tens[Math.floor(num / 10)];
+      const o = ones[num % 10];
+      return o ? `${t} ${o}` : t;
+    }
+    const h = ones[Math.floor(num / 100)];
+    const rest = belowThousand(num % 100);
+    return rest ? `${h} HUNDRED ${rest}` : `${h} HUNDRED`;
+  }
+  const parts: string[] = [];
+  if (n >= 1000) {
+    parts.push(`${belowThousand(Math.floor(n / 1000))} THOUSAND`);
+    n = n % 1000;
+  }
+  if (n > 0) parts.push(belowThousand(n));
+  return parts.join(" ");
+}
+
+function formatHoursLabel(hours: number): string {
+  return `${numberToWords(hours)} (${hours}) HOURS ON THE JOB AND WORK IMMERSION TRAINING`;
+}
+
 function certificateIssuedLine() {
   const parsed = new Date();
   if (Number.isNaN(parsed.getTime())) return "";
@@ -118,7 +149,7 @@ export async function resolveCertificatePreviews({ students, qrRecords, settings
       studentId: student.id,
       studentName: formatCertificateName(student),
       subtitle: student.school,
-      hoursLabel: `${formattedHours} HOURS ON THE JOB AND WORK IMMERSION TRAINING`,
+      hoursLabel: formatHoursLabel(Number.isFinite(numericHours) && numericHours > 0 ? Math.round(numericHours) : 0),
       dateRangeLabel: hasStartAndEndDate ? `from ${formatLongDate(student.startDate)} to ${formatLongDate(student.endDate)}` : "",
       officeLine: `at the ${student.office?.trim() || "Provincial Government Office"}${student.address?.trim() ? `, ${student.address.trim()}` : ""}`,
       issuedLine: certificateIssuedLine(),
@@ -161,16 +192,25 @@ function certificateLayoutMetrics(preview: ResolvedCertificatePreview, completio
   const completionFontSize = 30;
   const completionWidth = completionLength <= 85 ? 1180 : completionLength <= 130 ? 1240 : 1290;
 
+  // Hours line — proportional auto-sizing so it always fits on one line.
+  // Times New Roman bold uppercase: ~0.62 char width ratio.
+  const HOURS_CONTAINER_WIDTH = 1300;
+  const HOURS_CHAR_RATIO = 0.62;
+  const HOURS_MAX_FONT = 34;
+  const HOURS_MIN_FONT = 18;
+  const hoursFontSizeRaw = Math.floor(HOURS_CONTAINER_WIDTH / (hoursLength * HOURS_CHAR_RATIO));
+  const hoursFontSize = Math.min(HOURS_MAX_FONT, Math.max(HOURS_MIN_FONT, hoursFontSizeRaw));
+
   return {
     nameFontSize: nameLength <= 20 ? 90 : nameLength <= 28 ? 78 : nameLength <= 36 ? 66 : nameLength <= 44 ? 58 : nameLength <= 52 ? 50 : nameLength <= 60 ? 44 : 38,
     schoolFontSize: schoolLength <= 45 ? 31 : schoolLength <= 75 ? 26 : 22,
-    hoursFontSize: hoursLength <= 56 ? 34 : hoursLength <= 92 ? 29 : 25,
+    hoursFontSize,
     completionFontSize,
     detailsFontSize: detailsLength <= 85 ? 26 : detailsLength <= 130 ? 22 : 19,
     issuedFontSize: 30,
     nameWidth: nameLength <= 20 ? 1280 : nameLength <= 28 ? 1310 : nameLength <= 36 ? 1340 : nameLength <= 44 ? 1360 : nameLength <= 52 ? 1380 : 1400,
     schoolWidth: schoolLength <= 45 ? 1120 : schoolLength <= 75 ? 1180 : 1240,
-    hoursWidth: hoursLength <= 56 ? 1220 : hoursLength <= 92 ? 1280 : 1320,
+    hoursWidth: HOURS_CONTAINER_WIDTH,
     completionWidth,
     detailsWidth: detailsLength <= 85 ? 1180 : detailsLength <= 130 ? 1240 : 1290,
     issuedWidth: issuedLength <= 42 ? 980 : issuedLength <= 60 ? 1040 : 1100,

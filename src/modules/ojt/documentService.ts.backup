@@ -235,11 +235,11 @@ function certificateLayoutMetrics(preview: ResolvedCertificatePreview, completio
   return {
     // Name font matches the visual scale of "CERTIFICATE OF COMPLETION" on the template
     nameFontSize: certificateNameFontSize(nameLength),
-    schoolFontSize: 35,
+    schoolFontSize: 30,
     hoursFontSize: hoursLength <= 56 ? 34 : hoursLength <= 92 ? 29 : 25,
     detailsFontSize: detailsLength <= 85 ? 26 : detailsLength <= 130 ? 22 : 19,
     issuedFontSize: issuedLength <= 42 ? 30 : issuedLength <= 60 ? 26 : 22,
-    nameWidth: nameLength <= 24 && words <= 3 ? 1280 : nameLength <= 34 ? 1310 : nameLength <= 44 ? 1340 : 1360,
+    nameWidth: 1540,
     schoolWidth: schoolLength <= 45 ? 1120 : schoolLength <= 75 ? 1180 : 1240,
     hoursWidth: hoursLength <= 56 ? 1220 : hoursLength <= 92 ? 1280 : 1320,
     detailsWidth: detailsLength <= 85 ? 1180 : detailsLength <= 130 ? 1240 : 1290,
@@ -274,7 +274,7 @@ function buildCertificateSvg(preview: ResolvedCertificatePreview) {
   const overlays = `
       <!-- Student name -->
       <foreignObject x="${Math.round((sheetW - metrics.nameWidth) / 2)}" y="${TOP + 470}" width="${metrics.nameWidth}" height="132">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:${certificateNameLineHeight(preview.studentName)};letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;word-break:break-word;">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:${certificateNameLineHeight(preview.studentName)};letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;white-space:nowrap;overflow:hidden;">
             ${escapeHtml(preview.studentName)}
         </div>
       </foreignObject>
@@ -342,7 +342,7 @@ function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: ResolvedCertifi
       : "";
     return `
       <foreignObject x="${Math.round((sheetW - metrics.nameWidth) / 2)}" y="${offsetY + 370}" width="${metrics.nameWidth}" height="155">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:${certificateNameLineHeight(preview.studentName)};letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;word-break:break-word;">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:${certificateNameLineHeight(preview.studentName)};letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;white-space:nowrap;overflow:hidden;">
             ${escapeHtml(preview.studentName)}
         </div>
       </foreignObject>

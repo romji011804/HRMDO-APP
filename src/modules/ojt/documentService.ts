@@ -247,12 +247,12 @@ function certificateLayoutMetrics(preview: ResolvedCertificatePreview, completio
 
   return {
     nameFontSize: certificateNameFontSize(nameLength),
-    schoolFontSize: 35,
+    schoolFontSize: 30,
     hoursFontSize,
     completionFontSize,
     detailsFontSize: detailsLength <= 85 ? 26 : detailsLength <= 130 ? 22 : 19,
     issuedFontSize: 30,
-    nameWidth: nameLength <= 20 ? 1280 : nameLength <= 28 ? 1310 : nameLength <= 36 ? 1340 : nameLength <= 44 ? 1360 : nameLength <= 52 ? 1380 : 1400,
+    nameWidth: 1540,
     schoolWidth: schoolLength <= 45 ? 1120 : schoolLength <= 75 ? 1180 : 1240,
     hoursWidth: HOURS_CONTAINER_WIDTH,
     completionWidth,
@@ -292,7 +292,7 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
     const qrImage = preview.qrSrc ? `<image href="${preview.qrSrc}" x="92" y="${qrY}" width="110" height="110" preserveAspectRatio="xMidYMid meet" />` : "";
     return `
       <foreignObject x="${Math.round((sheetW - metrics.nameWidth) / 2)}" y="${nameY}" width="${metrics.nameWidth}" height="90">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:0.95;letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;word-break:break-word;">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:0.95;letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;white-space:nowrap;overflow:hidden;">
             ${escapeHtml(preview.studentName)}
         </div>
       </foreignObject>
@@ -334,7 +334,7 @@ export function buildSheetSvg(top: ResolvedCertificatePreview, bottom?: Resolved
     const qrImage = preview.qrSrc ? `<image href="${preview.qrSrc}" x="92" y="${qrY}" width="110" height="110" preserveAspectRatio="xMidYMid meet" />` : "";
     return `
       <foreignObject x="${Math.round((sheetW - metrics.nameWidth) / 2)}" y="${nameY}" width="${metrics.nameWidth}" height="90">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:0.95;letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;word-break:break-word;">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:0.95;letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;white-space:nowrap;overflow:hidden;">
             ${escapeHtml(preview.studentName)}
         </div>
       </foreignObject>
@@ -398,7 +398,7 @@ export function buildCertificateSvg(preview: ResolvedCertificatePreview) {
     <svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1100" viewBox="0 0 ${certW} ${certH}">
       <rect x="0" y="0" width="${certW}" height="${certH}" fill="white" />
       <foreignObject x="${Math.round((certW - metrics.nameWidth) / 2)}" y="${nameY}" width="${metrics.nameWidth}" height="90">
-        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:0.95;letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;word-break:break-word;">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Times New Roman',serif;font-size:${metrics.nameFontSize}px;font-weight:700;line-height:0.95;letter-spacing:-0.015em;text-align:center;text-transform:uppercase;color:#111;white-space:nowrap;overflow:hidden;">
             ${escapeHtml(preview.studentName)}
         </div>
       </foreignObject>

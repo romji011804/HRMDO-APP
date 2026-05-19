@@ -184,6 +184,46 @@ function sanitizeFileName(value: string) {
   return value.replace(/[<>:"/\\|?*\x00-\x1F]/g, "").replace(/\s+/g, "_").slice(0, 120) || "certificate";
 }
 
+function certificateNameFontSize(nameLength: number) {
+  if (nameLength <= 20) return 90;
+  if (nameLength <= 22) return 88;
+  if (nameLength <= 24) return 86;
+  if (nameLength <= 26) return 84;
+  if (nameLength <= 28) return 82;
+  if (nameLength <= 30) return 80;
+  if (nameLength <= 32) return 78;
+  if (nameLength <= 34) return 76;
+  if (nameLength <= 36) return 74;
+  if (nameLength <= 38) return 72;
+  if (nameLength <= 40) return 70;
+  if (nameLength <= 42) return 68;
+  if (nameLength <= 44) return 66;
+  if (nameLength <= 46) return 64;
+  if (nameLength <= 48) return 62;
+  if (nameLength <= 50) return 60;
+  if (nameLength <= 52) return 58;
+  if (nameLength <= 54) return 56;
+  if (nameLength <= 56) return 54;
+  if (nameLength <= 58) return 52;
+  if (nameLength <= 60) return 50;
+  if (nameLength <= 62) return 48;
+  if (nameLength <= 64) return 46;
+  if (nameLength <= 66) return 44;
+  if (nameLength <= 68) return 42;
+  if (nameLength <= 70) return 40;
+  if (nameLength <= 72) return 38;
+  if (nameLength <= 74) return 36;
+  if (nameLength <= 76) return 34;
+  if (nameLength <= 78) return 32;
+  if (nameLength <= 80) return 30;
+  if (nameLength <= 82) return 28;
+  if (nameLength <= 84) return 26;
+  if (nameLength <= 86) return 24;
+  if (nameLength <= 88) return 22;
+  if (nameLength <= 90) return 20;
+  return 18;
+}
+
 function certificateLayoutMetrics(preview: ResolvedCertificatePreview, completionLine: string): CertificateLayoutMetrics {
   const nameLength = preview.studentName.length;
   const schoolLength = preview.subtitle.length;
@@ -206,7 +246,7 @@ function certificateLayoutMetrics(preview: ResolvedCertificatePreview, completio
   const hoursFontSize = Math.min(HOURS_MAX_FONT, Math.max(HOURS_MIN_FONT, hoursFontSizeRaw));
 
   return {
-    nameFontSize: nameLength <= 20 ? 90 : nameLength <= 28 ? 78 : nameLength <= 36 ? 66 : nameLength <= 44 ? 58 : nameLength <= 52 ? 50 : nameLength <= 60 ? 44 : 38,
+    nameFontSize: certificateNameFontSize(nameLength),
     schoolFontSize: schoolLength <= 45 ? 31 : schoolLength <= 75 ? 26 : 22,
     hoursFontSize,
     completionFontSize,

@@ -247,7 +247,7 @@ function certificateLayoutMetrics(preview: ResolvedCertificatePreview, completio
 
   return {
     nameFontSize: certificateNameFontSize(nameLength),
-    schoolFontSize: schoolLength <= 45 ? 31 : schoolLength <= 75 ? 26 : 22,
+    schoolFontSize: 35,
     hoursFontSize,
     completionFontSize,
     detailsFontSize: detailsLength <= 85 ? 26 : detailsLength <= 130 ? 22 : 19,

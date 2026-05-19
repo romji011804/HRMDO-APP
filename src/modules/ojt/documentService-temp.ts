@@ -235,7 +235,7 @@ function certificateLayoutMetrics(preview: ResolvedCertificatePreview, completio
   return {
     // Name font matches the visual scale of "CERTIFICATE OF COMPLETION" on the template
     nameFontSize: certificateNameFontSize(nameLength),
-    schoolFontSize: schoolLength <= 45 ? 31 : schoolLength <= 75 ? 26 : 22,
+    schoolFontSize: 35,
     hoursFontSize: hoursLength <= 56 ? 34 : hoursLength <= 92 ? 29 : 25,
     detailsFontSize: detailsLength <= 85 ? 26 : detailsLength <= 130 ? 22 : 19,
     issuedFontSize: issuedLength <= 42 ? 30 : issuedLength <= 60 ? 26 : 22,

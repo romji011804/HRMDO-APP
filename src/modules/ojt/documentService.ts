@@ -77,6 +77,10 @@ function formatCertificateName(student: OjtStudentRecord) {
     .toUpperCase();
 }
 
+export function formatCertificateSubtitle(student: Pick<OjtStudentRecord, "program" | "school">) {
+  return [student.program.trim(), student.school.trim()].filter(Boolean).join(", ");
+}
+
 function formatLongDate(value?: string) {
   if (!value) return "";
   const parsed = new Date(value);
@@ -148,7 +152,7 @@ export async function resolveCertificatePreviews({ students, qrRecords, settings
       id: student.id,
       studentId: student.id,
       studentName: formatCertificateName(student),
-      subtitle: student.school,
+      subtitle: formatCertificateSubtitle(student),
       hoursLabel: formatHoursLabel(Number.isFinite(numericHours) && numericHours > 0 ? Math.round(numericHours) : 0),
       dateRangeLabel: hasStartAndEndDate ? `from ${formatLongDate(student.startDate)} to ${formatLongDate(student.endDate)}` : "",
       officeLine: `at the ${student.office?.trim() || "Provincial Government Office"}${student.address?.trim() ? `, ${student.address.trim()}` : ""}`,

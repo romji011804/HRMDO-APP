@@ -154,3 +154,17 @@ test("saved OJT certificates persist with certificate details", async () => {
   assert.equal(saved[0].templateFileName, "single_template.jpg");
   assert.equal(saved[0].qrIncluded, true);
 });
+
+test("OJT certificate subtitle includes program and school", async () => {
+  const { formatCertificateSubtitle } = await import("../src/modules/ojt/documentService.ts");
+
+  const subtitle = formatCertificateSubtitle({
+    program: "Bachelor of Science in Computer Science",
+    school: "Pangasinan State University - Lingayen Campus",
+  });
+
+  assert.equal(
+    subtitle,
+    "Bachelor of Science in Computer Science, Pangasinan State University - Lingayen Campus",
+  );
+});

@@ -85,6 +85,10 @@ function formatCertificateName(student: OjtStudentRecord) {
     .toUpperCase();
 }
 
+function formatCertificateSubtitle(student: Pick<OjtStudentRecord, "program" | "school">) {
+  return [student.program.trim(), student.school.trim()].filter(Boolean).join(", ");
+}
+
 function formatLongDate(value?: string) {
   if (!value) {
     return "";
@@ -147,7 +151,7 @@ export async function resolveCertificatePreviews({
       id: student.id,
       studentId: student.id,
       studentName: formatCertificateName(student),
-      subtitle: student.school,
+      subtitle: formatCertificateSubtitle(student),
       hoursLabel: `${formattedHours} HOURS ON THE JOB AND WORK IMMERSION TRAINING`,
       dateRangeLabel: hasStartAndEndDate
         ? `from ${formatLongDate(student.startDate)} to ${formatLongDate(student.endDate)} at the ${student.office?.trim() || "Provincial Government Office"},`
